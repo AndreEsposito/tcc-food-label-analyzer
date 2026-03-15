@@ -1,0 +1,168 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.6.1">
+  <diagram id="arquitetura-tcc" name="Arquitetura TCC">
+    <mxGraphModel dx="1584" dy="826" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=22;fontStyle=1" value="Arquitetura e Fluxo do Projeto - Análise Inteligente de Rótulos Alimentares" vertex="1">
+          <mxGeometry height="30" width="810" x="450" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="user" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=16" value="Usuário" vertex="1">
+          <mxGeometry height="100" width="50" x="90" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=18;fontStyle=1" value="" vertex="1">
+          <mxGeometry height="210" width="290" x="240" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=14" value="Tela inicial" vertex="1">
+          <mxGeometry height="40" width="130" x="250" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=14" value="Captura / Upload&#xa;de imagem" vertex="1">
+          <mxGeometry height="40" width="130" x="390" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=14" value="Tela de loading" vertex="1">
+          <mxGeometry height="40" width="130" x="250" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=14" value="Tela de resultado" vertex="1">
+          <mxGeometry height="40" width="130" x="250" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=14" value="Tratamento de erro" vertex="1">
+          <mxGeometry height="40" width="130" x="390" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="backend" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=18;fontStyle=1" value="" vertex="1">
+          <mxGeometry height="230" width="290" x="730" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="backend1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=14" value="Endpoint&#xa;/analisar-rotulo" vertex="1">
+          <mxGeometry height="50" width="130" x="740" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="backend2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=14" value="Integração com OCR" vertex="1">
+          <mxGeometry height="50" width="130" x="880" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="backend3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=14" value="Validação da&#xa;requisição" vertex="1">
+          <mxGeometry height="50" width="130" x="740" y="225" as="geometry" />
+        </mxCell>
+        <mxCell id="backend4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=14" value="Montagem da&#xa;resposta JSON" vertex="1">
+          <mxGeometry height="50" width="130" x="880" y="281.25" as="geometry" />
+        </mxCell>
+        <mxCell id="backend5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=14" value="Logs e tratamento&#xa;de falhas" vertex="1">
+          <mxGeometry height="47.5" width="130" x="740" y="282.5" as="geometry" />
+        </mxCell>
+        <mxCell id="ocr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=16;fontStyle=1" value="&lt;b&gt;OCR - Google Vision API&lt;/b&gt;&lt;br&gt;Imagem → Texto bruto" vertex="1">
+          <mxGeometry height="90" width="250" x="1240" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="pre" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#60A917,#1F2F1E);strokeColor=light-dark(#2D7600,#446E2C);fontSize=18;fontStyle=1;fontColor=#ffffff;" value="" vertex="1">
+          <mxGeometry height="180" width="290" x="1220" y="225" as="geometry" />
+        </mxCell>
+        <mxCell id="pre1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=light-dark(#D6B656,#446E2C);fontSize=14" value="Limpeza do texto" vertex="1">
+          <mxGeometry height="50" width="120" x="1240" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="pre2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=light-dark(#D6B656,#446E2C);fontSize=14" value="Normalização" vertex="1">
+          <mxGeometry height="50" width="120" x="1370" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="pre3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=light-dark(#D6B656,#446E2C);fontSize=14" value="Remoção de ruído" vertex="1">
+          <mxGeometry height="50" width="120" x="1240" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="pre4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=light-dark(#D6B656,#446E2C);fontSize=14" value="Separação de&#xa;ingredientes" vertex="1">
+          <mxGeometry height="50" width="120" x="1370" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="class" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=18;fontStyle=1" value="" vertex="1">
+          <mxGeometry height="240" width="430" x="660" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="rules" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;fontSize=14" value="&lt;b&gt;Módulo de Regras&lt;/b&gt;&lt;br&gt;• ingredientes críticos&lt;br&gt;• score de ultraprocessamento&lt;br&gt;• pesos e critérios" vertex="1">
+          <mxGeometry height="130" width="200" x="670" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="ml" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;fontSize=14" value="&lt;b&gt;Módulo ML (Experimental)&lt;/b&gt;&lt;br&gt;• Random Forest&lt;br&gt;• features de ingredientes&lt;br&gt;• inferência" vertex="1">
+          <mxGeometry height="130" width="200" x="880" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="decision" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;fontSize=14;fontStyle=1" value="Consolidação da decisão final" vertex="1">
+          <mxGeometry height="40" width="200" x="775" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="data" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=18;fontStyle=1" value="" vertex="1">
+          <mxGeometry height="170" width="280" x="1260" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="data1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=14" value="Dataset de rótulos" vertex="1">
+          <mxGeometry height="50" width="120" x="1270" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="data2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=14" value="Base de ingredientes&#xa;e aditivos" vertex="1">
+          <mxGeometry height="50" width="130" x="1400" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="data3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=14" value="Casos de teste" vertex="1">
+          <mxGeometry height="50" width="120" x="1270" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="data4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=14" value="Métricas e evidências&#xa;para o relatório" vertex="1">
+          <mxGeometry height="50" width="130" x="1400" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="result" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=16;fontStyle=1" value="&lt;b&gt;Resultado ao Usuário&lt;/b&gt;&lt;br&gt;Classificação + Explicação amigável" vertex="1">
+          <mxGeometry height="80" width="200" x="270" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="user" style="endArrow=block;html=1;rounded=0;strokeWidth=2" target="mobile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="mobile" style="endArrow=block;html=1;rounded=0;strokeWidth=2" target="backend" value="requisição com imagem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="backend2" style="endArrow=block;html=1;rounded=0;strokeWidth=2;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="ocr" value="envia imagem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="backend" style="endArrow=block;html=1;rounded=0;strokeWidth=2;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" target="class" value="classificação">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="875" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="backend" style="endArrow=block;html=1;rounded=0;strokeWidth=2;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0;exitY=0.75;exitDx=0;exitDy=0;" target="mobile" value="resposta da requisição">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3jXlEeOQfk47SBLGdmJH-9" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b style=&quot;font-size: 18px;&quot;&gt;Pré-processamento Textual&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="270" x="1230" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="3jXlEeOQfk47SBLGdmJH-10" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b style=&quot;font-size: 18px;&quot;&gt;API&amp;nbsp;&lt;/b&gt;&lt;b style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); font-size: 18px;&quot;&gt;Backend&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="150" x="800" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="3jXlEeOQfk47SBLGdmJH-16" parent="1" style="text;whiteSpace=wrap;html=1;" value="&lt;b style=&quot;font-size: 18px; text-align: center;&quot;&gt;Aplicativo Mobile&lt;/b&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="300" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="3jXlEeOQfk47SBLGdmJH-18" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b style=&quot;font-size: 18px;&quot;&gt;Motor de Classificação&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="200" x="780" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="3jXlEeOQfk47SBLGdmJH-20" parent="1" style="text;whiteSpace=wrap;html=1;" value="&lt;b style=&quot;font-size: 18px; text-align: center;&quot;&gt;Dados, Testes e Validação&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="230" x="1285" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="BQ6mad_MEEQrZKEgILK8-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=14" value="Envio para API" vertex="1">
+          <mxGeometry height="40" width="130" x="390" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="BQ6mad_MEEQrZKEgILK8-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=14" value="Pré-processamento Textual" vertex="1">
+          <mxGeometry height="47.5" width="130" x="880" y="226.25" as="geometry" />
+        </mxCell>
+        <mxCell id="BQ6mad_MEEQrZKEgILK8-6" edge="1" parent="1" source="ocr" style="endArrow=block;html=1;rounded=0;strokeWidth=2;entryX=0.923;entryY=0.6;entryDx=0;entryDy=0;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryPerimeter=0;" target="backend2" value="texto bruto">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="180" as="sourcePoint" />
+            <mxPoint x="1389" y="231" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Eq2iXIDvfVGYagATuBkw-2" edge="1" parent="1" source="BQ6mad_MEEQrZKEgILK8-3" style="dashed=1;endArrow=block;html=1;rounded=0;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="pre" value="tratamento de texto">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1920" y="603" as="sourcePoint" />
+            <mxPoint x="1372" y="447" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Eq2iXIDvfVGYagATuBkw-4" edge="1" parent="1" source="class" style="dashed=1;endArrow=block;html=1;rounded=0;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="data" value="preparação dos testes">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1160" y="390" as="sourcePoint" />
+            <mxPoint x="1370" y="455" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Eq2iXIDvfVGYagATuBkw-7" edge="1" parent="1" source="class" style="endArrow=block;html=1;rounded=0;strokeWidth=2;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" target="backend" value="resultado">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1253" y="410" as="sourcePoint" />
+            <mxPoint x="1180" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Eq2iXIDvfVGYagATuBkw-9" edge="1" parent="1" source="mobile5" style="dashed=1;endArrow=block;html=1;rounded=0;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="result" value="exibição do resultado">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="380" as="sourcePoint" />
+            <mxPoint x="580" y="445" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
