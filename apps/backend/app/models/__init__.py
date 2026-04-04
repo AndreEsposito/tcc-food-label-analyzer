@@ -1,1 +1,1 @@
-.gitkeep
+"""Models package."""

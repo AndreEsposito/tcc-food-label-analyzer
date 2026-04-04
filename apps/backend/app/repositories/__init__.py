@@ -1,1 +1,1 @@
-.gitkeep
+"""Repositories package."""

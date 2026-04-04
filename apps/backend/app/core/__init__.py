@@ -1,1 +1,1 @@
-.gitkeep
+"""Core package."""
