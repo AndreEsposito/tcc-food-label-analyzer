@@ -79,10 +79,15 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Environment
+# Environment (Arquivo de configuração são ignorados para segurança)
+# Use os templates (.template) como documentação
+# Desenvolvedores copiam para versão real local antes de usar
 .env
 .env.local
 .env.*.local
+.env.production
+!.env.local.template
+!.env.production.template
 
 # Google Cloud Credentials
 google-credentials.json
