@@ -2,7 +2,7 @@ services:
   - type: web
     name: food-label-analyzer-api
     env: python
-    runtime: python-3.13
+    runtime: python-3.12
     region: ohio
     plan: free
     buildCommand: cd apps/backend && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
