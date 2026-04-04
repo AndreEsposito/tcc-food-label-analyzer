@@ -1,1 +1,1 @@
-.gitkeep
+"""API v1 package."""
