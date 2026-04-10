@@ -1,0 +1,31 @@
+produto,ingredientes,classe
+Tomate fresco,"tomate",pouco processado
+Milho cozido,"milho, sal",pouco processado
+Leite integral,"leite",pouco processado
+Iogurte natural,"leite, fermento lacteo",pouco processado
+Arroz temperado,"arroz, alho, cebola, sal",pouco processado
+Feijao cozido,"feijao, agua, sal",pouco processado
+Frango grelhado,"frango, sal",pouco processado
+Batata cozida,"batata, sal",pouco processado
+Aveia com banana,"aveia, banana",pouco processado
+Mandioca cozida,"mandioca, sal",pouco processado
+Molho de tomate,"tomate, sal, conservante",processado
+Leite fermentado,"leite, estabilizante",processado
+Creme culinario,"leite, emulsificante",processado
+Bebida lactea,"leite, conservante",processado
+Molho pronto,"tomate, acidulante",processado
+Queijo processado,"leite, sal, emulsificante",processado
+Doce em calda,"figo, acucar, conservante",processado
+Vegetais em conserva,"cenoura, ervilha, sal, conservante",processado
+Geleia industrial,"morango, acucar, acidulante",processado
+Molho de pimenta,"pimenta, vinagre, conservante",processado
+Refrigerante cola,"agua, acucar, corante, aromatizante",ultraprocessado
+Salgadinho de milho,"milho, oleo, sal, glutamato monossodico, aromatizante",ultraprocessado
+Doce diet,"agua, edulcorante, sucralose, conservante",ultraprocessado
+Bebida achocolatada,"leite, xarope de glicose, aromatizante, estabilizante",ultraprocessado
+Macarrao instantaneo,"farinha, gordura vegetal hidrogenada, realcador de sabor, corante",ultraprocessado
+Biscoito recheado,"farinha, acucar, aromatizante, emulsificante",ultraprocessado
+Po para refresco,"acucar, corante, aromatizante, acidulante, edulcorante",ultraprocessado
+Iogurte sabor morango,"leite, aromatizante, corante, estabilizante",ultraprocessado
+Energetico,"agua, acucar, taurina, corante, aromatizante",ultraprocessado
+Sobremesa lactea,"leite, espessante, estabilizante, aromatizante, corante",ultraprocessado
