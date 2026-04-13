@@ -5,6 +5,7 @@ import pickle
 ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT_DIR))
 
+from packages.classification_core.pipeline import classificar
 from packages.classification_core.preprocess import preprocessar
 from packages.classification_core.features import extrair_features
 
@@ -25,13 +26,20 @@ exemplos = [
 ]
 
 for texto in exemplos:
+    resultado_regras = classificar(texto)
+    classe_regras = resultado_regras["classificacao"]
+
     texto_processado = preprocessar(texto)
     features = extrair_features(texto_processado)
-
     entrada = [list(features.values())]
-    previsao = modelo.predict(entrada)[0]
+    classe_ia = modelo.predict(entrada)[0]
 
     print("\n" + "=" * 60)
     print("Texto:", texto)
-    print("Texto processado:", texto_processado)
-    print("Previsão da IA:", previsao)
+    print("Regras:", classe_regras)
+    print("IA:", classe_ia)
+
+    if classe_regras == classe_ia:
+        print("Resultado: CONCORDAM")
+    else:
+        print("Resultado: DIVERGÊNCIA")

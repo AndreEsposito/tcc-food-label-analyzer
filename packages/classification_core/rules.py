@@ -14,7 +14,13 @@ def classificar_regras(features: dict) -> dict:
 
             encontrados.append(ingrediente)
 
-    if score >= 5 and any(i in ULTRAPROCESSADOS for i in encontrados):
+    tem_ultraprocessado = any(
+        ingrediente in ULTRAPROCESSADOS for ingrediente in encontrados
+    )
+
+    if score >= 5:
+        classificacao = "ultraprocessado"
+    elif score >= 4 and tem_ultraprocessado:
         classificacao = "ultraprocessado"
     elif score >= 1:
         classificacao = "processado"
