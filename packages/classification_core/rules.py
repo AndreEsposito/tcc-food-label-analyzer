@@ -20,7 +20,7 @@ def classificar_regras(features: dict) -> dict:
 
     if score >= 5:
         classificacao = "ultraprocessado"
-    elif score >= 4 and tem_ultraprocessado:
+    elif tem_ultraprocessado and score >= 3:
         classificacao = "ultraprocessado"
     elif score >= 1:
         classificacao = "processado"

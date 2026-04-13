@@ -9,6 +9,16 @@ Frango grelhado,"frango, sal",pouco processado
 Batata cozida,"batata, sal",pouco processado
 Aveia com banana,"aveia, banana",pouco processado
 Mandioca cozida,"mandioca, sal",pouco processado
+Banana com aveia,"banana, aveia",pouco processado
+Ovo cozido,"ovo, sal",pouco processado
+Carne assada,"carne bovina, sal",pouco processado
+Peixe grelhado,"peixe, sal",pouco processado
+Legumes cozidos,"cenoura, batata, sal",pouco processado
+Abobora cozida,"abobora, sal",pouco processado
+Pure de batata caseiro,"batata, leite, sal",pouco processado
+Frutas secas,"uva passa, banana seca",pouco processado
+Salada simples,"alface, tomate, cebola, sal",pouco processado
+Mingau simples,"aveia, leite",pouco processado
 Molho de tomate,"tomate, sal, conservante",processado
 Leite fermentado,"leite, estabilizante",processado
 Creme culinario,"leite, emulsificante",processado
@@ -19,6 +29,16 @@ Doce em calda,"figo, acucar, conservante",processado
 Vegetais em conserva,"cenoura, ervilha, sal, conservante",processado
 Geleia industrial,"morango, acucar, acidulante",processado
 Molho de pimenta,"pimenta, vinagre, conservante",processado
+Milho em conserva,"milho, agua, sal, conservante",processado
+Ervilha em conserva,"ervilha, agua, sal, conservante",processado
+Molho de alho,"alho, oleo, acidulante",processado
+Requeijao culinario,"leite, sal, emulsificante",processado
+Creme de leite culinario,"creme de leite, estabilizante",processado
+Doce de goiaba,"goiaba, acucar, conservante",processado
+Pepino em conserva,"pepino, vinagre, sal, conservante",processado
+Molho barbecue,"tomate, acucar, acidulante, conservante",processado
+Queijo fatiado,"leite, sal, conservante",processado
+Leite com chocolate pronto,"leite, cacau, estabilizante",processado
 Refrigerante cola,"agua, acucar, corante, aromatizante",ultraprocessado
 Salgadinho de milho,"milho, oleo, sal, glutamato monossodico, aromatizante",ultraprocessado
 Doce diet,"agua, edulcorante, sucralose, conservante",ultraprocessado
@@ -29,3 +49,18 @@ Po para refresco,"acucar, corante, aromatizante, acidulante, edulcorante",ultrap
 Iogurte sabor morango,"leite, aromatizante, corante, estabilizante",ultraprocessado
 Energetico,"agua, acucar, taurina, corante, aromatizante",ultraprocessado
 Sobremesa lactea,"leite, espessante, estabilizante, aromatizante, corante",ultraprocessado
+Wafer recheado,"farinha, acucar, aromatizante, emulsificante",ultraprocessado
+Bolinho pronto chocolate,"farinha, acucar, aromatizante, corante, emulsificante",ultraprocessado
+Bebida lactea sabor morango,"leite, aromatizante, corante, estabilizante",ultraprocessado
+Cereal matinal colorido,"milho, acucar, corante, aromatizante",ultraprocessado
+Sobremesa pronta,"leite, espessante, estabilizante, aromatizante, corante",ultraprocessado
+Po para cappuccino,"acucar, aromatizante, espessante, edulcorante",ultraprocessado
+Suco em po,"acucar, corante, aromatizante, acidulante, edulcorante",ultraprocessado
+Tempero pronto,"sal, glutamato monossodico, realcador de sabor, corante",ultraprocessado
+Caldo em cubo,"sal, gordura vegetal hidrogenada, glutamato monossodico, corante",ultraprocessado
+Molho sabor queijo,"agua, amido, aromatizante, corante, estabilizante",ultraprocessado
+Biscoito recheado chocolate,"farinha, acucar, gordura vegetal hidrogenada, aromatizante, emulsificante",ultraprocessado
+Biscoito recheado morango,"farinha, acucar, corante, aromatizante, emulsificante",ultraprocessado
+Snack doce industrializado,"milho, xarope de glicose, aromatizante, corante",ultraprocessado
+Bala mastigavel,"acucar, xarope de glicose, corante, aromatizante",ultraprocessado
+Gelatina sabor artificial,"acucar, corante, aromatizante, edulcorante",ultraprocessado

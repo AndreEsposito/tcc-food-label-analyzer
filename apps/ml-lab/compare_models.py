@@ -16,13 +16,38 @@ with open(MODEL_PATH, "rb") as f:
     modelo = pickle.load(f)
 
 exemplos = [
-    "Tomate, sal",
-    "Molho de tomate: tomate, sal, conservante",
-    "Leite fermentado: leite, estabilizante",
+    # 🔹 Pouco processado (controle)
+    "Banana, aveia",
+    "Arroz, feijao, sal",
+    "Frango, sal, alho",
+    "Leite, fermento lacteo",
+    "Batata, sal",
+
+    # 🔹 Processado (intermediário)
+    "Molho de tomate: tomate, sal, conservante, acidulante",
+    "Milho em conserva: milho, agua, sal, conservante",
+    "Ervilha em conserva: ervilha, agua, sal, conservante",
+    "Requeijao: leite, sal, emulsificante",
+    "Molho barbecue: tomate, acucar, acidulante, conservante",
+
+    # 🔹 Ultraprocessado (clássico)
     "Refrigerante: agua, acucar, corante, aromatizante",
     "Salgadinho: milho, oleo, sal, glutamato monossodico, aromatizante",
-    "Doce diet: agua, edulcorante, sucralose, conservante",
-    "Biscoito recheado: farinha, acucar, aromatizante, emulsificante"
+    "Suco em po: acucar, corante, aromatizante, acidulante",
+    "Tempero pronto: sal, glutamato monossodico, corante",
+    "Caldo em cubo: sal, gordura vegetal hidrogenada, corante",
+
+    # 🔥 Casos DIFÍCEIS (importante)
+    "Iogurte sabor morango: leite, aromatizante, corante",
+    "Bebida lactea: leite, acucar, estabilizante",
+    "Cereal matinal: milho, acucar, aromatizante",
+    "Biscoito simples: farinha, acucar, emulsificante",
+    "Chocolate ao leite: acucar, leite, emulsificante",
+    "Molho pronto industrial: tomate, acucar, aromatizante",
+    "Pao industrial: farinha, acucar, emulsificante, conservante",
+    "Hamburguer industrial: carne, gordura vegetal, conservante",
+    "Sorvete industrial: leite, acucar, estabilizante, aromatizante",
+    "Achocolatado em po: acucar, cacau, aromatizante"
 ]
 
 for texto in exemplos:
