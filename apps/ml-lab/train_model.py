@@ -38,5 +38,4 @@ MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 with open(MODEL_PATH, "wb") as f:
     pickle.dump(modelo, f)
 
-print("Modelo treinado e salvo com sucesso!")
-print(f"Modelo salvo em: {MODEL_PATH}")
+print("Modelo treinado!")

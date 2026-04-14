@@ -65,6 +65,6 @@ for texto in exemplos:
     print("IA:", classe_ia)
 
     if classe_regras == classe_ia:
-        print("Resultado: CONCORDAM")
+        print("Resultado: Concordam!")
     else:
-        print("Resultado: DIVERGÊNCIA")
+        print("Resultado: Discordam!")
