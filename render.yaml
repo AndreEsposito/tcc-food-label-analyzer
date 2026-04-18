@@ -3,10 +3,11 @@ services:
     name: food-label-analyzer-api
     env: python
     runtime: python-3.12
+    rootDir: apps
     region: ohio
     plan: free
-    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r apps/requirements.txt
-    startCommand: cd apps/backend && python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+    startCommand: cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
     envVars:
       - key: APP_ENV
         value: production
