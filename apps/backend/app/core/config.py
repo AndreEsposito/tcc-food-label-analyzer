@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import tempfile
@@ -7,39 +8,55 @@ from pathlib import Path
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+BASE_DIR = Path(__file__).resolve().parents[2]
+
 
 def _get_env_file() -> str:
     """
     Detecta o ambiente e retorna o arquivo .env apropriado.
-    
+
     Ordem de prioridade:
-    1. Variável de ambiente APP_ENV → usa .env.{APP_ENV}
+    1. Variavel de ambiente APP_ENV -> usa .env.{APP_ENV}
     2. Arquivo .env.local se existir
     3. Arquivo .env.production se existir
-    4. Padrão: .env.local (development)
+    4. Padrao: .env.local (development)
     """
     app_env = os.getenv("APP_ENV", "").lower()
-    
+
+    candidates: list[Path] = []
     if app_env:
-        return f".env.{app_env}"
-    
-    # Detecção automática
-    if Path(".env.local").exists():
-        return ".env.local"
-    elif Path(".env.production").exists():
-        return ".env.production"
-    
-    # Padrão para desenvolvimento
-    return ".env.local"
+        candidates.append(BASE_DIR / f".env.{app_env}")
+
+    candidates.extend(
+        [
+            BASE_DIR / ".env.local",
+            BASE_DIR / ".env.production",
+            Path.cwd() / ".env.local",
+            Path.cwd() / ".env.production",
+        ]
+    )
+
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+
+    return str(BASE_DIR / ".env.local")
+
+
+def _resolve_backend_path(path_value: str) -> str:
+    path = Path(path_value)
+    if path.is_absolute():
+        return str(path)
+    return str((BASE_DIR / path).resolve())
 
 
 class Settings(BaseSettings):
     app_name: str = "Food Label Analyzer API"
     debug: bool = False
     google_application_credentials: str | None = None
-    google_credentials_json: str | None = None  # JSON string ou base64 das credenciais
+    google_credentials_json: str | None = None
     google_vision_timeout_seconds: float = 10.0
-    app_env: str | None = None  # Ambiente (local, production, etc)
+    app_env: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=_get_env_file(),
@@ -61,31 +78,34 @@ class Settings(BaseSettings):
                 return False
         return False
 
+    @field_validator("google_application_credentials", mode="before")
+    @classmethod
+    def normalize_google_credentials_path(cls, value):
+        if not value:
+            return value
+        return _resolve_backend_path(value)
+
     @field_validator("google_credentials_json", mode="after")
     @classmethod
     def setup_google_credentials(cls, value):
         """
-        Processa credenciais do Google a partir de variável de ambiente.
+        Processa credenciais do Google a partir de variavel de ambiente.
         Suporta dois formatos:
         1. JSON direto como string
-        2. Base64 do JSON (útil para variáveis de ambiente)
+        2. Base64 do JSON
         """
         if not value:
             return value
 
-        # Tenta decodificar como base64 se necessário
         try:
-            import base64
             decoded = base64.b64decode(value).decode("utf-8")
             credentials_dict = json.loads(decoded)
         except Exception:
-            # Se falhar, assume que é JSON direto
             try:
                 credentials_dict = json.loads(value)
-            except json.JSONDecodeError:
-                raise ValueError("google_credentials_json deve ser JSON válido ou base64 de JSON")
+            except json.JSONDecodeError as exc:
+                raise ValueError("google_credentials_json deve ser JSON valido ou base64 de JSON") from exc
 
-        # Cria arquivo temporário com as credenciais
         temp_file = tempfile.NamedTemporaryFile(
             mode="w",
             suffix=".json",
@@ -94,7 +114,6 @@ class Settings(BaseSettings):
         json.dump(credentials_dict, temp_file)
         temp_file.close()
 
-        # Define variável de ambiente
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = temp_file.name
 
         return temp_file.name

@@ -117,6 +117,13 @@ ou
 3. Ajustar credenciais no `apps/backend/.env.local`
 
 4. Subir API
+
+Opcao A (a partir da raiz do repositorio):
+```bash
+python -m uvicorn app.main:app --app-dir apps/backend --host localhost --port 8000
+```
+
+Opcao B (entrando no modulo backend):
 ```bash
 cd apps/backend
 python -m uvicorn app.main:app --host localhost --port 8000
@@ -151,6 +158,10 @@ Build falhou:
 Aplicacao nao sobe no Render:
 - Verificar se `GOOGLE_CREDENTIALS_JSON` foi configurada corretamente
 - Verificar logs do servico
+
+Erro `ModuleNotFoundError: No module named 'app'` ao subir local:
+- Causa: comando executado fora de `apps/backend`
+- Correcao: usar `--app-dir apps/backend` no comando do uvicorn, ou executar o comando dentro de `apps/backend`
 
 Erro de autenticacao OCR:
 - Revisar permissao da Service Account

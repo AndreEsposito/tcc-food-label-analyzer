@@ -1,9 +1,11 @@
 import logging
 import os
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 from google.api_core.exceptions import DeadlineExceeded, GoogleAPICallError, RetryError
 from google.auth.exceptions import DefaultCredentialsError
+from google.oauth2 import service_account
 from google.cloud import vision
 
 from app.core.config import Settings
@@ -26,12 +28,33 @@ class OCRService(ABC):
 class GoogleVisionOCRService(OCRService):
     def __init__(self, settings: Settings):
         self._timeout_seconds = settings.google_vision_timeout_seconds
-        if settings.google_application_credentials:
-            os.environ.setdefault(
-                "GOOGLE_APPLICATION_CREDENTIALS",
-                settings.google_application_credentials,
+        self._client = self._build_client(settings)
+
+    def _build_client(self, settings: Settings) -> vision.ImageAnnotatorClient:
+        credentials_path = settings.google_application_credentials
+        if credentials_path:
+            credentials_file = Path(credentials_path)
+            if credentials_file.exists():
+                credentials = service_account.Credentials.from_service_account_file(
+                    str(credentials_file)
+                )
+                return vision.ImageAnnotatorClient(credentials=credentials)
+
+            logger.warning(
+                "Arquivo de credenciais do Google nao encontrado em: %s",
+                credentials_file,
             )
-        self._client = vision.ImageAnnotatorClient()
+
+        env_credentials = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+        if env_credentials:
+            env_credentials_file = Path(env_credentials)
+            if env_credentials_file.exists():
+                credentials = service_account.Credentials.from_service_account_file(
+                    str(env_credentials_file)
+                )
+                return vision.ImageAnnotatorClient(credentials=credentials)
+
+        return vision.ImageAnnotatorClient()
 
     def extract_text(self, image_bytes: bytes) -> str:
         logger.debug(f"Iniciando extração de texto (tamanho: {len(image_bytes)} bytes)")
