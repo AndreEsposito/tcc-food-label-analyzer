@@ -19,8 +19,6 @@ Status:
 - `app/api/v1/analises.py`: endpoint `POST /analises`.
 - `app/services/analysis_pipeline.py`: orquestracao do fluxo.
 - `app/services/ocr.py`: integracao Google Vision.
-- `app/services/text_preprocessing.py`: limpeza/normalizacao de ingredientes.
-- `app/services/classification.py`: classificacao por regras.
 - `app/models/schemas.py`: contratos de entrada/saida.
 - `tests/`: testes unitarios e de endpoint.
 
@@ -104,7 +102,7 @@ Importante:
 ## Como rodar local
 1. Instalar dependencias
 ```bash
-pip install -r apps/backend/requirements.txt
+pip install -r apps/requirements.txt
 ```
 
 2. Criar `.env.local`
@@ -132,7 +130,7 @@ Este repositorio ja possui `render.yaml` na raiz.
 
 Configuracao atual do service:
 - Runtime: Python 3.12
-- Build: `cd apps/backend && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt`
+- Build: `pip install --upgrade pip setuptools wheel && pip install -r apps/requirements.txt`
 - Start: `cd apps/backend && python -m uvicorn app.main:app --host 0.0.0.0 --port 8000`
 
 Passo a passo:
@@ -147,7 +145,7 @@ Validacao pos-deploy:
 
 ## Troubleshooting rapido
 Build falhou:
-- Verificar `apps/backend/requirements.txt`
+- Verificar `apps/requirements.txt`
 - Verificar logs de build no Render
 
 Aplicacao nao sobe no Render:

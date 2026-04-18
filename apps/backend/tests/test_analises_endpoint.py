@@ -103,7 +103,7 @@ def test_post_analises_rejeita_arquivo_nao_imagem(client):
     )
 
     assert response.status_code == 400
-    assert response.json()["detail"] == "O campo 'imagem' deve conter um arquivo de imagem."
+    assert response.json()["detail"] == "O campo 'imagem' deve conter um arquivo de imagem. Recebido: text/plain"
 
 
 def test_post_analises_quando_ocr_sem_texto(client):

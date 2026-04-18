@@ -18,9 +18,7 @@ def classificar_regras(features: dict) -> dict:
         ingrediente in ULTRAPROCESSADOS for ingrediente in encontrados
     )
 
-    if score >= 5:
-        classificacao = "ultraprocessado"
-    elif tem_ultraprocessado and score >= 3:
+    if tem_ultraprocessado and score >= 3:
         classificacao = "ultraprocessado"
     elif score >= 1:
         classificacao = "processado"
