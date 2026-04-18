@@ -1,4 +1,5 @@
 from pathlib import Path
+from functools import lru_cache
 import pickle
 
 
@@ -11,6 +12,7 @@ MODEL_PATH = (
 )
 
 
+@lru_cache(maxsize=1)
 def carregar_modelo():
     with open(MODEL_PATH, "rb") as f:
         modelo = pickle.load(f)

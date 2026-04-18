@@ -144,6 +144,7 @@ logs/
 
 # Models
 *.pkl
+!apps/ml-lab/models/random_forest.pkl
 *.joblib
 *.h5
 *.model
