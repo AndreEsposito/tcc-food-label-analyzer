@@ -1,0 +1,125 @@
+#:kivy 2.0
+#:import utils kivy.utils
+
+<PreviewScreen>:
+    canvas.before:
+        Color:
+            rgba: utils.get_color_from_hex("#F0EEEA")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        # Título
+        Label:
+            text: "Confirmar imagem"
+            font_size: "17sp"
+            bold: True
+            color: utils.get_color_from_hex("#333333")
+            size_hint: 1, None
+            height: "40dp"
+            pos_hint: {"center_x": 0.5, "top": 0.97}
+            halign: "center"
+
+        Label:
+            text: "Verifique se o rótulo está nítido e legível"
+            font_size: "13sp"
+            color: utils.get_color_from_hex("#888888")
+            size_hint: 1, None
+            height: "20dp"
+            pos_hint: {"center_x": 0.5, "top": 0.92}
+            halign: "center"
+
+        # Moldura + imagem
+        BoxLayout:
+            size_hint: 0.88, 0.60
+            pos_hint: {"center_x": 0.5, "top": 0.88}
+            padding: "4dp"
+            canvas.before:
+                # Sombra suave
+                Color:
+                    rgba: 0, 0, 0, 0.08
+                RoundedRectangle:
+                    pos: self.x + 4, self.y - 4
+                    size: self.width, self.height
+                    radius: [dp(20)]
+                # Fundo branco da moldura
+                Color:
+                    rgba: 1, 1, 1, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [dp(20)]
+                # Borda laranja
+                Color:
+                    rgba: utils.get_color_from_hex("#FF6B00")
+                Line:
+                    rounded_rectangle: self.x, self.y, self.width, self.height, dp(20)
+                    width: 2
+
+            Image:
+                id: preview_image
+                source: root.image_path if root.image_path else "assets/images/placeholder.png"
+                fit_mode: "contain"
+                canvas.before:
+                    Color:
+                        rgba: 1, 1, 1, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [dp(16)]
+
+        # Dica de qualidade
+        Label:
+            text: "💡  Foto bem iluminada garante um resultado mais preciso"
+            font_size: "12sp"
+            color: utils.get_color_from_hex("#AAAAAA")
+            size_hint: 0.88, None
+            height: "20dp"
+            pos_hint: {"center_x": 0.5, "top": 0.26}
+            halign: "center"
+
+        # Botões
+        BoxLayout:
+            orientation: "horizontal"
+            spacing: "16dp"
+            padding: "24dp", 0
+            size_hint: 1, None
+            height: "62dp"
+            pos_hint: {"center_x": 0.5, "y": 0.05}
+
+            Button:
+                text: "Cancelar"
+                font_size: "16sp"
+                bold: True
+                color: utils.get_color_from_hex("#FF6B00")
+                background_color: 0, 0, 0, 0
+                on_release: app.root.current = "home"
+                canvas.before:
+                    Color:
+                        rgba: 1, 1, 1, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [dp(18)]
+                    Color:
+                        rgba: utils.get_color_from_hex("#FF6B00")
+                    Line:
+                        rounded_rectangle: self.x, self.y, self.width, self.height, dp(18)
+                        width: 1.5
+
+            Button:
+                text: "Analisar"
+                font_size: "16sp"
+                bold: True
+                color: 1, 1, 1, 1
+                background_color: 0, 0, 0, 0
+                on_release: root.enviar_para_analise()
+                canvas.before:
+                    Color:
+                        rgba: utils.get_color_from_hex("#FF6B00")
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [dp(18)]

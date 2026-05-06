@@ -1,0 +1,49 @@
+#:kivy 2.0
+#:import utils kivy.utils
+#:import Animation kivy.animation.Animation
+
+<SplashScreen>:
+    canvas.before:
+        Color:
+            rgba: utils.get_color_from_hex("#F0EEEA")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            source: "assets/images/bg_pattern.png"
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        BoxLayout:
+            orientation: "vertical"
+            spacing: "20dp"
+            size_hint: 0.75, None
+            height: "180dp"
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+            # Ícone girando
+            Image:
+                id: splash_icon
+                source: "assets/images/logo_icon.png"
+                size_hint: None, None
+                size: "72dp", "72dp"
+                pos_hint: {"center_x": 0.5}
+
+            # Textos
+            Label:
+                text: "Analisando ingredientes..."
+                font_size: "16sp"
+                bold: True
+                color: utils.get_color_from_hex("#FF6B00")
+                halign: "center"
+
+            Label:
+                text: "Identificando indícios de ultraprocessamento"
+                font_size: "13sp"
+                color: utils.get_color_from_hex("#FF8C2A")
+                halign: "center"
+                text_size: self.width, None

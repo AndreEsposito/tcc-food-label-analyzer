@@ -1,0 +1,71 @@
+#:kivy 2.0
+#:import utils kivy.utils
+
+<HomeScreen>:
+    canvas.before:
+        Color:
+            rgba: utils.get_color_from_hex("#F0EEEA")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            source: "assets/images/bg_pattern.png"
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        # Logo no canto superior direito
+        Image:
+            source: "assets/images/logo.png"
+            size_hint: None, None
+            size: "72dp", "72dp"
+            pos_hint: {"right": 0.97, "top": 0.97}
+            fit_mode: "contain"
+
+        # Botões centralizados na parte inferior
+        BoxLayout:
+            orientation: "vertical"
+            spacing: "16dp"
+            padding: "32dp", 0
+            size_hint: 1, None
+            height: "160dp"
+            pos_hint: {"center_x": 0.5, "center_y": 0.28}
+
+            # Botão primário — Capturar rótulo
+            Button:
+                text: "Capturar rótulo"
+                font_size: "17sp"
+                bold: True
+                color: 1, 1, 1, 1
+                size_hint_y: None
+                height: "62dp"
+                background_color: 0, 0, 0, 0
+                on_release: app.root.current = "camera"
+                canvas.before:
+                    Color:
+                        rgba: utils.get_color_from_hex("#FF6B00")
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [dp(18)]
+
+            # Botão secundário — Selecionar da galeria
+            Button:
+                text: "Selecionar da galeria"
+                font_size: "17sp"
+                bold: True
+                color: 1, 1, 1, 1
+                size_hint_y: None
+                height: "62dp"
+                background_color: 0, 0, 0, 0
+                on_release: root.abrir_galeria()
+                canvas.before:
+                    Color:
+                        rgba: utils.get_color_from_hex("#FF8C2A")
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [dp(18)]

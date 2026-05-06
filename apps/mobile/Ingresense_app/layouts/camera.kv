@@ -1,0 +1,29 @@
+#:kivy 2.0
+#:import utils kivy.utils
+
+# A CameraScreen não tem UI própria —
+# ela abre a câmera nativa do dispositivo via plyer (on_enter em camera.py)
+# e redireciona para PreviewScreen após a captura.
+
+<CameraScreen>:
+    canvas.before:
+        Color:
+            rgba: utils.get_color_from_hex("#F0EEEA")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            source: "assets/images/bg_pattern.png"
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        # Mensagem enquanto câmera nativa carrega
+        Label:
+            text: "Abrindo câmera..."
+            font_size: "15sp"
+            color: utils.get_color_from_hex("#FF6B00")
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}

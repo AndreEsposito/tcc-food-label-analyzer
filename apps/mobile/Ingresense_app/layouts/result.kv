@@ -1,0 +1,417 @@
+#:kivy 2.0
+#:import utils kivy.utils
+
+<ResultScreen>:
+    canvas.before:
+        Color:
+            rgba: utils.get_color_from_hex("#F0EEEA")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        # ── Estado: LOADING ──────────────────────────────────────────
+        BoxLayout:
+            orientation: "vertical"
+            spacing: "28dp"
+            size_hint: 0.8, None
+            height: self.minimum_height
+            pos_hint: {"center_x": 0.5, "center_y": 0.52}
+            opacity: 1 if root.state == "loading" else 0
+
+            # Pontinhos pulando em sequência
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint: None, None
+                size: "120dp", "20dp"
+                pos_hint: {"center_x": 0.5}
+                spacing: "16dp"
+
+                # Ponto 0
+                Widget:
+                    size_hint: None, None
+                    size: "16dp", "16dp"
+                    canvas:
+                        Color:
+                            rgba: utils.get_color_from_hex("#FF6B00") if root.dot_index == 0 else (0.85, 0.85, 0.85, 1)
+                        Ellipse:
+                            pos: self.pos[0], self.pos[1] + (6 if root.dot_index == 0 else 0)
+                            size: self.size
+
+                # Ponto 1
+                Widget:
+                    size_hint: None, None
+                    size: "16dp", "16dp"
+                    canvas:
+                        Color:
+                            rgba: utils.get_color_from_hex("#FF6B00") if root.dot_index == 1 else (0.85, 0.85, 0.85, 1)
+                        Ellipse:
+                            pos: self.pos[0], self.pos[1] + (6 if root.dot_index == 1 else 0)
+                            size: self.size
+
+                # Ponto 2
+                Widget:
+                    size_hint: None, None
+                    size: "16dp", "16dp"
+                    canvas:
+                        Color:
+                            rgba: utils.get_color_from_hex("#FF6B00") if root.dot_index == 2 else (0.85, 0.85, 0.85, 1)
+                        Ellipse:
+                            pos: self.pos[0], self.pos[1] + (6 if root.dot_index == 2 else 0)
+                            size: self.size
+
+                # Ponto 3
+                Widget:
+                    size_hint: None, None
+                    size: "16dp", "16dp"
+                    canvas:
+                        Color:
+                            rgba: utils.get_color_from_hex("#FF6B00") if root.dot_index == 3 else (0.85, 0.85, 0.85, 1)
+                        Ellipse:
+                            pos: self.pos[0], self.pos[1] + (6 if root.dot_index == 3 else 0)
+                            size: self.size
+
+            Label:
+                text: root.loading_text
+                font_size: "15sp"
+                bold: True
+                color: utils.get_color_from_hex("#FF6B00")
+                halign: "center"
+                text_size: self.width, None
+                size_hint_y: None
+                height: self.texture_size[1]
+
+        # ── Estado: ERRO ─────────────────────────────────────────────
+        BoxLayout:
+            orientation: "vertical"
+            spacing: "16dp"
+            size_hint: 0.75, None
+            height: self.minimum_height
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            opacity: 1 if root.state == "error" else 0
+
+            Image:
+                source: "assets/images/icon_error.png"
+                size_hint: None, None
+                size: "72dp", "72dp"
+                pos_hint: {"center_x": 0.5}
+
+            Label:
+                text: root.erro_titulo if root.erro_titulo else "Não foi possível analisar a imagem"
+                font_size: "15sp"
+                color: utils.get_color_from_hex("#D93025")
+                bold: True
+                halign: "center"
+                text_size: self.width, None
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            Label:
+                text: root.erro_detalhe if root.erro_detalhe else ""
+                font_size: "13sp"
+                color: utils.get_color_from_hex("#666666")
+                halign: "center"
+                text_size: self.width, None
+                size_hint_y: None
+                height: self.texture_size[1]
+                opacity: 1 if root.erro_detalhe else 0
+
+            Button:
+                text: "Tentar novamente"
+                font_size: "14sp"
+                bold: True
+                color: 1, 1, 1, 1
+                size_hint_y: None
+                height: "52dp"
+                background_color: 0, 0, 0, 0
+                on_release: root.tentar_novamente()
+                canvas.before:
+                    Color:
+                        rgba: utils.get_color_from_hex("#FF6B00")
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [dp(14)]
+
+            Button:
+                text: "Voltar para o início"
+                font_size: "13sp"
+                color: utils.get_color_from_hex("#FF6B00")
+                size_hint_y: None
+                height: "40dp"
+                background_color: 0, 0, 0, 0
+                on_release: root.voltar()
+
+        # ── Estado: SUCESSO ──────────────────────────────────────────
+        ScrollView:
+            size_hint: 1, 1
+            pos_hint: {"x": 0, "y": 0}
+            opacity: 1 if root.state == "success" else 0
+            do_scroll_x: False
+
+            BoxLayout:
+                orientation: "vertical"
+                spacing: "14dp"
+                padding: "20dp", "32dp", "20dp", "32dp"
+                size_hint_y: None
+                height: self.minimum_height
+
+                # ── Card 1: Badge NOVA + barra de risco ──────────────
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: "14dp"
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: "20dp", "20dp"
+                    canvas.before:
+                        Color:
+                            rgba: 1, 1, 1, 0.95
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(20)]
+
+                    BoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "56dp"
+                        spacing: "14dp"
+
+                        Widget:
+                            size_hint: None, None
+                            size: "56dp", "56dp"
+                            canvas:
+                                Color:
+                                    rgba: root.nova_cor
+                                Ellipse:
+                                    pos: self.pos
+                                    size: self.size
+                            Label:
+                                text: root.nova_dica_icone
+                                font_size: "22sp"
+                                size: self.parent.size
+                                pos: self.parent.pos
+                                halign: "center"
+                                valign: "middle"
+                                text_size: self.parent.size
+
+                        BoxLayout:
+                            orientation: "vertical"
+                            spacing: "2dp"
+
+                            Label:
+                                text: "Resultado da análise"
+                                font_size: "12sp"
+                                color: utils.get_color_from_hex("#999999")
+                                halign: "left"
+                                text_size: self.width, None
+                                size_hint_y: None
+                                height: "18dp"
+
+                            Label:
+                                text: root.classificacao
+                                font_size: "18sp"
+                                bold: True
+                                color: root.nova_cor
+                                halign: "left"
+                                text_size: self.width, None
+                                size_hint_y: None
+                                height: "28dp"
+
+                    BoxLayout:
+                        orientation: "vertical"
+                        size_hint_y: None
+                        height: "36dp"
+                        spacing: "6dp"
+
+                        BoxLayout:
+                            orientation: "horizontal"
+                            size_hint_y: None
+                            height: "14dp"
+
+                            Label:
+                                text: "Nível de processamento"
+                                font_size: "11sp"
+                                color: utils.get_color_from_hex("#AAAAAA")
+                                halign: "left"
+                                text_size: self.width, None
+
+                            Label:
+                                text: "Baixo              Alto"
+                                font_size: "10sp"
+                                color: utils.get_color_from_hex("#CCCCCC")
+                                halign: "right"
+                                text_size: self.width, None
+
+                        Widget:
+                            size_hint_y: None
+                            height: "10dp"
+                            canvas:
+                                Color:
+                                    rgba: utils.get_color_from_hex("#EEEEEE")
+                                RoundedRectangle:
+                                    pos: self.pos
+                                    size: self.size
+                                    radius: [dp(5)]
+                                Color:
+                                    rgba: root.nova_cor
+                                RoundedRectangle:
+                                    pos: self.pos
+                                    size: self.width * root.nova_progresso, self.height
+                                    radius: [dp(5)]
+
+                # ── Card 2: O que significa esse nível? ──────────────
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: "10dp"
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: "20dp", "18dp"
+                    canvas.before:
+                        Color:
+                            rgba: 1, 1, 1, 0.95
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(20)]
+
+                    BoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "24dp"
+                        spacing: "8dp"
+
+                        Label:
+                            text: "📖"
+                            font_size: "16sp"
+                            size_hint: None, None
+                            size: "24dp", "24dp"
+
+                        Label:
+                            text: "O que significa esse nível?"
+                            font_size: "14sp"
+                            bold: True
+                            color: utils.get_color_from_hex("#333333")
+                            halign: "left"
+                            text_size: self.width, None
+
+                    Label:
+                        text: root.nova_descricao
+                        font_size: "13sp"
+                        color: utils.get_color_from_hex("#555555")
+                        halign: "left"
+                        text_size: self.width, None
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                # ── Card 3: Por que essa classificação? ──────────────
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: "10dp"
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: "20dp", "18dp"
+                    canvas.before:
+                        Color:
+                            rgba: 1, 1, 1, 0.95
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(20)]
+
+                    BoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "24dp"
+                        spacing: "8dp"
+
+                        Label:
+                            text: "🔍"
+                            font_size: "16sp"
+                            size_hint: None, None
+                            size: "24dp", "24dp"
+
+                        Label:
+                            text: "Por que essa classificação?"
+                            font_size: "14sp"
+                            bold: True
+                            color: utils.get_color_from_hex("#333333")
+                            halign: "left"
+                            text_size: self.width, None
+
+                    Label:
+                        text: root.justificativa if root.justificativa else "Análise concluída."
+                        font_size: "13sp"
+                        color: utils.get_color_from_hex("#555555")
+                        halign: "left"
+                        text_size: self.width, None
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                # ── Card 4: O que fazer com isso? ────────────────────
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: "10dp"
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: "20dp", "18dp"
+                    canvas.before:
+                        Color:
+                            rgba: root.nova_cor[0], root.nova_cor[1], root.nova_cor[2], 0.10
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(20)]
+                        Color:
+                            rgba: root.nova_cor[0], root.nova_cor[1], root.nova_cor[2], 0.35
+                        Line:
+                            rounded_rectangle: self.x, self.y, self.width, self.height, dp(20)
+                            width: 1.2
+
+                    BoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "24dp"
+                        spacing: "8dp"
+
+                        Label:
+                            text: root.nova_dica_icone
+                            font_size: "16sp"
+                            size_hint: None, None
+                            size: "24dp", "24dp"
+
+                        Label:
+                            text: "O que fazer com isso?"
+                            font_size: "14sp"
+                            bold: True
+                            color: utils.get_color_from_hex("#333333")
+                            halign: "left"
+                            text_size: self.width, None
+
+                    Label:
+                        text: root.nova_dica
+                        font_size: "13sp"
+                        color: utils.get_color_from_hex("#444444")
+                        halign: "left"
+                        text_size: self.width, None
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                # ── Botão: Nova análise ───────────────────────────────
+                Button:
+                    text: "Nova análise"
+                    font_size: "16sp"
+                    bold: True
+                    color: 1, 1, 1, 1
+                    size_hint_y: None
+                    height: "56dp"
+                    background_color: 0, 0, 0, 0
+                    on_release: root.voltar()
+                    canvas.before:
+                        Color:
+                            rgba: utils.get_color_from_hex("#FF6B00")
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(18)]
