@@ -107,7 +107,7 @@ def _normalizar_resposta(dados: dict) -> dict:
 
     Backend retorna:
       classificacao.status       -> "ALTO_INDICIO" | "MEDIO_INDICIO" | "BAIXO_INDICIO"
-      classificacao.categoria    -> "ultraprocessado" | "processado" | "pouco processado"
+      classificacao.categoria    -> "ultraprocessado"
       classificacao.justificativa -> texto descritivo
 
     App consome:

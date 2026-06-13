@@ -1,4 +1,6 @@
 import logging
+from dataclasses import dataclass
+from typing import Mapping
 from uuid import uuid4
 
 from app.models.schemas import (
@@ -13,28 +15,51 @@ from packages.classification_core.pipeline import classificar
 logger = logging.getLogger(__name__)
 
 
+@dataclass(frozen=True)
+class ClassificationDomain:
+    categoria: str
+    status_by_core_classification: Mapping[str, ClassificationStatus]
+    default_status: ClassificationStatus
+
+
+ULTRAPROCESSING_DOMAIN = ClassificationDomain(
+    categoria="ultraprocessado",
+    status_by_core_classification={
+        "ultraprocessado": ClassificationStatus.ALTO_INDICIO,
+        "processado": ClassificationStatus.MEDIO_INDICIO,
+        "pouco processado": ClassificationStatus.BAIXO_INDICIO,
+    },
+    default_status=ClassificationStatus.BAIXO_INDICIO,
+)
+
+
 class AnalysisPipeline:
-    def __init__(self, ocr_service: OCRService):
+    def __init__(
+        self,
+        ocr_service: OCRService,
+        classification_domain: ClassificationDomain = ULTRAPROCESSING_DOMAIN,
+    ):
         self._ocr_service = ocr_service
+        self._classification_domain = classification_domain
 
     def run(self, image_bytes: bytes) -> AnalysisResponse:
         logger.debug(f"Pipeline iniciado com imagem de {len(image_bytes)} bytes")
 
         logger.debug("Etapa 1: Extraindo texto com OCR...")
         raw_text = self._ocr_service.extract_text(image_bytes)
-        logger.debug(f"OCR concluído: {len(raw_text)} caracteres extraídos")
+        logger.debug(f"OCR concluido: {len(raw_text)} caracteres extraidos")
 
         logger.debug("Etapa 2: Classificando produto com classification_core...")
         core_result = classificar(raw_text)
         classification = self._build_classification_result(core_result)
         logger.info(
-            "Classificação final: %s - %s",
+            "Classificacao final: %s - %s",
             classification.status,
             classification.categoria,
         )
 
         analysis_id = uuid4()
-        logger.info(f"Análise {analysis_id} concluída com sucesso")
+        logger.info(f"Analise {analysis_id} concluida com sucesso")
         return AnalysisResponse(
             analiseId=analysis_id,
             status=AnalysisStatus.CLASSIFICADO,
@@ -45,22 +70,13 @@ class AnalysisPipeline:
         classificacao_final = core_result.get("classificacao_final", "")
         explicacao = core_result.get("explicacao", "")
 
-        try:
-            if classificacao_final == "ultraprocessado":
-                status = ClassificationStatus.ALTO_INDICIO
-            elif classificacao_final == "processado":
-                status = ClassificationStatus.MEDIO_INDICIO
-            else:
-                status = ClassificationStatus.BAIXO_INDICIO
-        except Exception as exc:
-            logger.error(f"Erro ao determinar status de classificação: {exc}")
-            raise Exception(
-            status_code=status.HTTP_500_BAD_GATEWAY,
-            detail="Falha ao classificar rótulos.",
+        status = self._classification_domain.status_by_core_classification.get(
+            classificacao_final,
+            self._classification_domain.default_status,
         )
 
         return ClassificationResult(
-            categoria=classificacao_final or "desconhecido",
+            categoria=self._classification_domain.categoria,
             status=status,
             justificativa=explicacao
             or "Nao foi possivel gerar uma explicacao para a classificacao.",
