@@ -75,7 +75,12 @@ class ResultScreen(Screen):
     loading_text    = StringProperty(LOADING_TEXTS[0])
     dot_index       = NumericProperty(0)
     classificacao   = StringProperty("")
+    resumo          = StringProperty("")
     justificativa   = StringProperty("")
+    orientacao      = StringProperty("")
+    evidencias_texto = StringProperty("")
+    aviso           = StringProperty("")
+    nova_grupo_texto = StringProperty("")
     nova_descricao  = StringProperty("")
     nova_dica       = StringProperty("")
     nova_dica_icone = StringProperty("")
@@ -93,7 +98,12 @@ class ResultScreen(Screen):
 
         self.state           = "loading"
         self.classificacao   = ""
+        self.resumo          = ""
         self.justificativa   = ""
+        self.orientacao      = ""
+        self.evidencias_texto = ""
+        self.aviso           = ""
+        self.nova_grupo_texto = ""
         self.nova_descricao  = ""
         self.nova_dica       = ""
         self.nova_dica_icone = ""
@@ -146,18 +156,44 @@ class ResultScreen(Screen):
             self.state = "error"
             return
 
-        grupo  = resultado.get("nova_grupo", 4)
+        try:
+            grupo = int(resultado.get("nova_grupo", 4))
+        except (TypeError, ValueError):
+            grupo = 4
+
         config = NOVA_CONFIG.get(grupo, NOVA_CONFIG[4])
 
         self.nova_cor        = list(config["cor"])
         self.nova_progresso  = config["progresso"]
-        self.classificacao   = resultado.get("classificacao", config["label"])
+        self.nova_grupo_texto = f"NOVA\n{grupo}"
+        self.classificacao   = resultado.get("titulo") or resultado.get(
+            "classificacao",
+            config["label"],
+        )
+        self.resumo          = resultado.get("resumo", "")
         self.justificativa   = resultado.get("justificativa", "")
-        self.nova_descricao  = config["descricao"]
-        self.nova_dica       = config["dica"]
+        self.orientacao      = resultado.get("orientacao", "")
+        self.evidencias_texto = self._formatar_evidencias(
+            resultado.get("evidencias", [])
+        )
+        self.aviso           = resultado.get("aviso", "")
+        self.nova_descricao  = self.resumo or config["descricao"]
+        self.nova_dica       = self.orientacao or config["dica"]
         self.nova_dica_icone = config["dica_icone"]
 
         self.state = "success"
+
+    def _formatar_evidencias(self, evidencias):
+        linhas = []
+        for evidencia in evidencias or []:
+            termo = evidencia.get("termo", "")
+            descricao = evidencia.get("descricao", "")
+            if termo and descricao:
+                linhas.append(f"{termo}: {descricao}")
+            elif termo:
+                linhas.append(termo)
+
+        return "\n".join(linhas)
 
     def tentar_novamente(self):
         """Reinicia a análise com a mesma imagem sem sair da tela."""

@@ -10,6 +10,7 @@ from app.models.schemas import (
     ClassificationStatus,
 )
 from app.services.ocr import OCRService
+from packages.classification_core.explanation_generator import gerar_explicacao_amigavel
 from packages.classification_core.pipeline import classificar
 
 logger = logging.getLogger(__name__)
@@ -68,16 +69,62 @@ class AnalysisPipeline:
 
     def _build_classification_result(self, core_result: dict) -> ClassificationResult:
         classificacao_final = core_result.get("classificacao_final", "")
-        explicacao = core_result.get("explicacao", "")
 
         status = self._classification_domain.status_by_core_classification.get(
             classificacao_final,
             self._classification_domain.default_status,
         )
+        explicacao_amigavel = self._build_friendly_explanation(
+            core_result=core_result,
+            classificacao_final=classificacao_final,
+            status=status,
+        )
+        justificativa = (
+            explicacao_amigavel.get("justificativa")
+            or core_result.get("explicacao")
+            or "Nao foi possivel gerar uma explicacao para a classificacao."
+        )
 
         return ClassificationResult(
             categoria=self._classification_domain.categoria,
             status=status,
-            justificativa=explicacao
-            or "Nao foi possivel gerar uma explicacao para a classificacao.",
+            justificativa=justificativa,
+            novaGrupo=explicacao_amigavel.get("novaGrupo", 1),
+            titulo=explicacao_amigavel.get("titulo", ""),
+            resumo=explicacao_amigavel.get("resumo", ""),
+            orientacao=explicacao_amigavel.get("orientacao", ""),
+            evidencias=explicacao_amigavel.get("evidencias", []),
+            ingredientesDetectados=explicacao_amigavel.get(
+                "ingredientesDetectados",
+                [],
+            ),
+            aviso=explicacao_amigavel.get("aviso", ""),
         )
+
+    def _build_friendly_explanation(
+        self,
+        core_result: dict,
+        classificacao_final: str,
+        status: ClassificationStatus,
+    ) -> dict:
+        regras = core_result.get("regras", {})
+        ingredientes_detectados = (
+            core_result.get("ingredientes_detectados")
+            or regras.get("ingredientes_detectados")
+            or []
+        )
+
+        fallback = gerar_explicacao_amigavel(
+            classificacao=classificacao_final,
+            status=status.value,
+            ingredientes_detectados=ingredientes_detectados,
+            score=regras.get("score"),
+        )
+        explicacao_amigavel = core_result.get("explicacao_amigavel")
+        if not isinstance(explicacao_amigavel, dict):
+            return fallback
+
+        return {
+            key: explicacao_amigavel.get(key) or fallback_value
+            for key, fallback_value in fallback.items()
+        }

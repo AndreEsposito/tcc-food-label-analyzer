@@ -46,6 +46,44 @@ def test_analysis_pipeline_keeps_category_fixed_for_all_statuses(
     assert result.status.value == "CLASSIFICADO"
     assert result.classificacao.categoria == "ultraprocessado"
     assert result.classificacao.status.value == expected_status
+    assert result.classificacao.justificativa
+    assert result.classificacao.titulo
+    assert result.classificacao.resumo
+    assert result.classificacao.orientacao
+    assert result.classificacao.aviso
+
+
+def test_analysis_pipeline_enriches_response_with_evidences(monkeypatch):
+    ocr = StubOCR("INGREDIENTES: aromatizante, corante e conservante.")
+    monkeypatch.setattr(
+        analysis_pipeline_module,
+        "classificar",
+        lambda texto: {
+            "classificacao_final": "ultraprocessado",
+            "regras": {
+                "score": 7,
+                "ingredientes_detectados": [
+                    "aromatizante",
+                    "corante",
+                    "conservante",
+                ],
+            },
+            "explicacao": "Texto tecnico antigo.",
+        },
+    )
+    pipeline = AnalysisPipeline(ocr_service=ocr)
+
+    result = pipeline.run(image_bytes=b"img")
+
+    assert result.classificacao.status.value == "ALTO_INDICIO"
+    assert result.classificacao.novaGrupo == 4
+    assert result.classificacao.titulo == "Fortes indícios de ultraprocessamento"
+    assert result.classificacao.evidencias[0].termo == "aromatizante"
+    assert result.classificacao.ingredientesDetectados == [
+        "aromatizante",
+        "corante",
+        "conservante",
+    ]
 
 
 def test_analysis_pipeline_raises_when_ocr_fails():

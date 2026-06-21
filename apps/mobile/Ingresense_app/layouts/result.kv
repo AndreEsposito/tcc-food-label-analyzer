@@ -188,8 +188,10 @@
                                     pos: self.pos
                                     size: self.size
                             Label:
-                                text: root.nova_dica_icone
-                                font_size: "22sp"
+                                text: root.nova_grupo_texto
+                                font_size: "12sp"
+                                bold: True
+                                color: 1, 1, 1, 1
                                 size: self.parent.size
                                 pos: self.parent.pos
                                 halign: "center"
@@ -280,13 +282,14 @@
                         orientation: "horizontal"
                         size_hint_y: None
                         height: "24dp"
-                        spacing: "8dp"
+                        spacing: "0dp"
 
                         Label:
                             text: "📖"
                             font_size: "16sp"
                             size_hint: None, None
-                            size: "24dp", "24dp"
+                            size: "0dp", "24dp"
+                            opacity: 0
 
                         Label:
                             text: "O que significa esse nível?"
@@ -324,13 +327,14 @@
                         orientation: "horizontal"
                         size_hint_y: None
                         height: "24dp"
-                        spacing: "8dp"
+                        spacing: "0dp"
 
                         Label:
                             text: "🔍"
                             font_size: "16sp"
                             size_hint: None, None
-                            size: "24dp", "24dp"
+                            size: "0dp", "24dp"
+                            opacity: 0
 
                         Label:
                             text: "Por que essa classificação?"
@@ -350,6 +354,40 @@
                         height: self.texture_size[1]
 
                 # ── Card 4: O que fazer com isso? ────────────────────
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: "10dp"
+                    size_hint_y: None
+                    height: self.minimum_height if root.evidencias_texto else 0
+                    opacity: 1 if root.evidencias_texto else 0
+                    padding: "20dp", "18dp"
+                    canvas.before:
+                        Color:
+                            rgba: 1, 1, 1, 0.95
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(20)]
+
+                    Label:
+                        text: "Itens identificados"
+                        font_size: "14sp"
+                        bold: True
+                        color: utils.get_color_from_hex("#333333")
+                        halign: "left"
+                        text_size: self.width, None
+                        size_hint_y: None
+                        height: self.texture_size[1] if root.evidencias_texto else 0
+
+                    Label:
+                        text: root.evidencias_texto
+                        font_size: "12sp"
+                        color: utils.get_color_from_hex("#555555")
+                        halign: "left"
+                        text_size: self.width, None
+                        size_hint_y: None
+                        height: self.texture_size[1] if root.evidencias_texto else 0
+
                 BoxLayout:
                     orientation: "vertical"
                     spacing: "10dp"
@@ -375,11 +413,25 @@
                         height: "24dp"
                         spacing: "8dp"
 
-                        Label:
-                            text: root.nova_dica_icone
-                            font_size: "16sp"
+                        Widget:
                             size_hint: None, None
                             size: "24dp", "24dp"
+                            canvas:
+                                Color:
+                                    rgba: root.nova_cor
+                                Ellipse:
+                                    pos: self.x + dp(3), self.y + dp(3)
+                                    size: dp(18), dp(18)
+                            Label:
+                                text: "!"
+                                font_size: "13sp"
+                                bold: True
+                                color: 1, 1, 1, 1
+                                size: self.parent.size
+                                pos: self.parent.pos
+                                halign: "center"
+                                valign: "middle"
+                                text_size: self.parent.size
 
                         Label:
                             text: "O que fazer com isso?"
@@ -397,6 +449,30 @@
                         text_size: self.width, None
                         size_hint_y: None
                         height: self.texture_size[1]
+
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: "8dp"
+                    size_hint_y: None
+                    height: self.minimum_height if root.aviso else 0
+                    opacity: 1 if root.aviso else 0
+                    padding: "16dp", "14dp"
+                    canvas.before:
+                        Color:
+                            rgba: 1, 1, 1, 0.65
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(16)]
+
+                    Label:
+                        text: root.aviso
+                        font_size: "11sp"
+                        color: utils.get_color_from_hex("#777777")
+                        halign: "left"
+                        text_size: self.width, None
+                        size_hint_y: None
+                        height: self.texture_size[1] if root.aviso else 0
 
                 # ── Botão: Nova análise ───────────────────────────────
                 Button:

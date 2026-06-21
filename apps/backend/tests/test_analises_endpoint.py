@@ -65,6 +65,14 @@ def test_post_analises_sucesso_alto_indicio(client):
     assert body["status"] == "CLASSIFICADO"
     assert body["classificacao"]["categoria"] == "ultraprocessado"
     assert body["classificacao"]["status"] == "ALTO_INDICIO"
+    assert body["classificacao"]["justificativa"]
+    assert "novaGrupo" in body["classificacao"]
+    assert "titulo" in body["classificacao"]
+    assert "resumo" in body["classificacao"]
+    assert "orientacao" in body["classificacao"]
+    assert "evidencias" in body["classificacao"]
+    assert "ingredientesDetectados" in body["classificacao"]
+    assert "aviso" in body["classificacao"]
 
 
 def test_post_analises_sucesso_medio_indicio(client):

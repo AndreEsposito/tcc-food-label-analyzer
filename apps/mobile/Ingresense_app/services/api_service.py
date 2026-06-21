@@ -119,14 +119,20 @@ def _normalizar_resposta(dados: dict) -> dict:
         classificacao = dados.get("classificacao", {})
         status = classificacao.get("status", "")
         categoria = classificacao.get("categoria", "desconhecido")
-        justificativa = classificacao.get("justificativa", "")
 
         nova_grupo, label = _status_para_nova(status, categoria)
+        titulo = classificacao.get("titulo") or label
 
         return {
-            "nova_grupo": nova_grupo,
-            "classificacao": label,
-            "justificativa": justificativa,
+            "nova_grupo": classificacao.get("novaGrupo", nova_grupo),
+            "classificacao": titulo,
+            "titulo": titulo,
+            "resumo": classificacao.get("resumo", ""),
+            "justificativa": classificacao.get("justificativa", ""),
+            "orientacao": classificacao.get("orientacao", ""),
+            "evidencias": classificacao.get("evidencias", []),
+            "ingredientes_detectados": classificacao.get("ingredientesDetectados", []),
+            "aviso": classificacao.get("aviso", ""),
         }
     except Exception:
         return {"erro": "Resposta inesperada do servidor."}
@@ -164,6 +170,29 @@ def _mock_resposta() -> dict:
     return {
         "nova_grupo": 4,
         "classificacao": "Ultraprocessado",
+        "titulo": "Ultraprocessado",
+        "resumo": "Este produto possui ingredientes comuns em alimentos ultraprocessados.",
+        "orientacao": (
+            "Vale consumir com atenção e comparar com produtos que tenham uma lista "
+            "de ingredientes menor e com nomes mais familiares."
+        ),
+        "evidencias": [
+            {
+                "termo": "corante",
+                "tipo": "corante",
+                "descricao": "Pode indicar uso de substâncias para alterar a aparência do produto.",
+            },
+            {
+                "termo": "aromatizante",
+                "tipo": "aromatizante",
+                "descricao": "Pode indicar uso de substâncias para alterar ou intensificar o sabor.",
+            },
+        ],
+        "ingredientes_detectados": ["corante", "aromatizante", "maltodextrina"],
+        "aviso": (
+            "Resultado informativo baseado na lista de ingredientes identificada pelo OCR. "
+            "Esta análise não substitui a avaliação de um profissional de nutrição."
+        ),
         "justificativa": (
             "O produto foi classificado como ultraprocessado devido à presença de: "
             "corante, aromatizante, glutamato monossódico, maltodextrina."
