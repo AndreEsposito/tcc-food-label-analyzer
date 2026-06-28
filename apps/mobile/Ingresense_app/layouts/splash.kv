@@ -3,19 +3,6 @@
 #:import Animation kivy.animation.Animation
 
 <SplashScreen>:
-    canvas.before:
-        Color:
-            rgba: utils.get_color_from_hex("#F0EEEA")
-        Rectangle:
-            pos: self.pos
-            size: self.size
-        Color:
-            rgba: 1, 1, 1, 1
-        Rectangle:
-            source: "assets/images/bg_pattern.png"
-            pos: self.pos
-            size: self.size
-
     FloatLayout:
 
         BoxLayout:

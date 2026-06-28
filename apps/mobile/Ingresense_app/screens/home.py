@@ -1,9 +1,9 @@
 import os
-from kivy.uix.screenmanager import Screen
+from .base import BaseScreen
 from kivy.clock import Clock
 
 
-class HomeScreen(Screen):
+class HomeScreen(BaseScreen):
 
     def abrir_galeria(self):
         """Abre o seletor de arquivos nativo via plyer."""

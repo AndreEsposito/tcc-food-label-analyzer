@@ -1,12 +1,12 @@
 import os
-from kivy.uix.screenmanager import Screen
+from .base import BaseScreen
 from plyer import camera
 
 
 CAPTURE_PATH = os.path.join("assets", "images", "captured.png")
 
 
-class CameraScreen(Screen):
+class CameraScreen(BaseScreen):
 
     def on_enter(self):
         """Abre a câmera nativa assim que entra na tela."""

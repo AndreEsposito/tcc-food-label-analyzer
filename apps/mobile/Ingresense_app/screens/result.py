@@ -1,6 +1,7 @@
 import threading
 
-from kivy.uix.screenmanager import Screen
+from .base import BaseScreen
+from kivy.app import App
 from kivy.properties import StringProperty, NumericProperty, ListProperty
 from kivy.clock import Clock
 
@@ -68,7 +69,7 @@ NUM_DOTS     = 4
 DOT_INTERVAL = 0.18  # segundos entre cada ponto acender
 
 
-class ResultScreen(Screen):
+class ResultScreen(BaseScreen):
 
     state           = StringProperty("loading")
     image_path      = StringProperty("")
@@ -92,9 +93,15 @@ class ResultScreen(Screen):
     _dot_event  = None
     _text_event = None
     _text_index = 0
+    _error_touch_target = None
+
+    def on_kv_post(self, base_widget):
+        super().on_kv_post(base_widget)
+        self._bind_buttons()
 
     def on_enter(self):
         self._cancelar_animacoes()
+        self._error_touch_target = None
 
         self.state           = "loading"
         self.classificacao   = ""
@@ -118,11 +125,57 @@ class ResultScreen(Screen):
         self._dot_event  = Clock.schedule_interval(self._avancar_ponto, DOT_INTERVAL)
         self._text_event = Clock.schedule_interval(self._alternar_texto, 4.0)
 
+        self._bind_buttons()
+        Clock.schedule_once(lambda dt: self._atualizar_visibilidade_estado(), 0.05)
+
         thread = threading.Thread(target=self._analisar, daemon=True)
         thread.start()
 
     def on_leave(self):
+        self._error_touch_target = None
         self._cancelar_animacoes()
+
+    def on_state(self, instance, value):
+        self._bind_buttons()
+        Clock.schedule_once(lambda dt: self._atualizar_visibilidade_estado(), 0.05)
+
+    def _bind_buttons(self):
+        retry_button = self.ids.get("retry_button")
+        home_button = self.ids.get("home_button")
+
+        if retry_button is not None and not getattr(retry_button, "_result_bound", False):
+            retry_button._result_bound = True
+
+        if home_button is not None and not getattr(home_button, "_result_bound", False):
+            home_button._result_bound = True
+
+    def _atualizar_visibilidade_estado(self):
+        loading = self.ids.get("loading_container")
+        error = self.ids.get("error_container")
+        success = self.ids.get("success_container")
+        retry = self.ids.get("retry_button")
+        home = self.ids.get("home_button")
+
+        def aplicar(container, ativo):
+            if container is None:
+                return
+            container.opacity = 1 if ativo else 0
+            container.disabled = not ativo
+
+        aplicar(loading, self.state == "loading")
+        aplicar(error, self.state == "error")
+        aplicar(success, self.state == "success")
+
+        if retry is not None:
+            retry.disabled = self.state != "error"
+            retry.opacity = 1 if self.state == "error" else 0
+            retry.size_hint_y = None
+            retry.height = "52dp" if self.state == "error" else 0
+        if home is not None:
+            home.disabled = self.state != "error"
+            home.opacity = 1 if self.state == "error" else 0
+            home.size_hint_y = None
+            home.height = "40dp" if self.state == "error" else 0
 
     # ── animações ─────────────────────────────────────────────────────────────
 
@@ -154,6 +207,7 @@ class ResultScreen(Screen):
             self.erro_titulo  = resultado.get("erro", "Algo deu errado.")
             self.erro_detalhe = resultado.get("detalhe", "Tente novamente.")
             self.state = "error"
+            Clock.schedule_once(lambda dt: self._atualizar_visibilidade_estado(), 0.05)
             return
 
         try:
@@ -182,6 +236,7 @@ class ResultScreen(Screen):
         self.nova_dica_icone = config["dica_icone"]
 
         self.state = "success"
+        Clock.schedule_once(lambda dt: self._atualizar_visibilidade_estado(), 0.05)
 
     def _formatar_evidencias(self, evidencias):
         linhas = []
@@ -195,9 +250,44 @@ class ResultScreen(Screen):
 
         return "\n".join(linhas)
 
-    def tentar_novamente(self):
+    def tentar_novamente(self, *args):
         """Reinicia a análise com a mesma imagem sem sair da tela."""
-        self.on_enter()
+        self._cancelar_animacoes()
+        Clock.schedule_once(lambda dt: self.on_enter(), 0)
 
-    def voltar(self):
-        self.manager.current = "home"
+    def voltar(self, *args):
+        if self.manager is not None:
+            self.manager.current = "home"
+            return
+
+        app = App.get_running_app()
+        if app and getattr(app, "root", None) is not None:
+            app.root.current = "home"
+
+    def on_touch_down(self, touch):
+        if self.state == "error":
+            retry = self.ids.get("retry_button")
+            home = self.ids.get("home_button")
+
+            for button in (retry, home):
+                if (
+                    button is not None
+                    and not button.disabled
+                    and button.opacity > 0
+                    and button.collide_point(*touch.pos)
+                ):
+                    self._error_touch_target = button
+                    return button.on_touch_down(touch)
+
+        return super().on_touch_down(touch)
+
+    def on_touch_up(self, touch):
+        if self._error_touch_target is not None:
+            button = self._error_touch_target
+            self._error_touch_target = None
+
+            if button is not None:
+                return button.on_touch_up(touch)
+
+        return super().on_touch_up(touch)
+

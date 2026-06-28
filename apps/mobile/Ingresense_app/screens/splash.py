@@ -1,4 +1,4 @@
-from kivy.uix.screenmanager import Screen
+from .base import BaseScreen
 from kivy.animation import Animation
 from kivy.clock import Clock
 
@@ -6,7 +6,7 @@ from kivy.clock import Clock
 SPLASH_DURATION = 2.5  # segundos antes de ir para home
 
 
-class SplashScreen(Screen):
+class SplashScreen(BaseScreen):
 
     def on_enter(self):
         """Inicia animação e agenda transição para home."""

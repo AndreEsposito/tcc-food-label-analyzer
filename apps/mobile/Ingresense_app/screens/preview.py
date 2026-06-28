@@ -1,8 +1,9 @@
-from kivy.uix.screenmanager import Screen
+from kivy.clock import Clock
 from kivy.properties import StringProperty
+from .base import BaseScreen
 
 
-class PreviewScreen(Screen):
+class PreviewScreen(BaseScreen):
 
     image_path = StringProperty("")
 
@@ -21,5 +22,5 @@ class PreviewScreen(Screen):
         # Passa o caminho para a tela de resultado e inicia análise
         result_screen = self.manager.get_screen("result")
         result_screen.image_path = self.image_path
-
         self.manager.current = "result"
+        Clock.schedule_once(lambda dt: result_screen.on_enter(), 0.05)

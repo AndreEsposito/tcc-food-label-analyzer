@@ -6,19 +6,6 @@
 # e redireciona para PreviewScreen após a captura.
 
 <CameraScreen>:
-    canvas.before:
-        Color:
-            rgba: utils.get_color_from_hex("#F0EEEA")
-        Rectangle:
-            pos: self.pos
-            size: self.size
-        Color:
-            rgba: 1, 1, 1, 1
-        Rectangle:
-            source: "assets/images/bg_pattern.png"
-            pos: self.pos
-            size: self.size
-
     FloatLayout:
 
         # Mensagem enquanto câmera nativa carrega

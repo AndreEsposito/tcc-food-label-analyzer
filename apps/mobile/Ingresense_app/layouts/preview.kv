@@ -1,13 +1,10 @@
 #:kivy 2.0
 #:import utils kivy.utils
+# carregador de imagens para usar como textura em canvas
+# (RoundedRectangle não aceita 'source' diretamente)
+#:import CoreImage kivy.core.image.Image
 
 <PreviewScreen>:
-    canvas.before:
-        Color:
-            rgba: utils.get_color_from_hex("#F0EEEA")
-        Rectangle:
-            pos: self.pos
-            size: self.size
 
     FloatLayout:
 
@@ -44,10 +41,10 @@
                     pos: self.x + 4, self.y - 4
                     size: self.width, self.height
                     radius: [dp(20)]
-                # Fundo branco da moldura
-                Color:
-                    rgba: 1, 1, 1, 1
+                # Fundo com imagem placeholder da moldura
+                # usa textura para manter cantos arredondados
                 RoundedRectangle:
+                    texture: CoreImage("assets/images/placeholder.png").texture
                     pos: self.pos
                     size: self.size
                     radius: [dp(20)]
@@ -98,15 +95,15 @@
                 on_release: app.root.current = "home"
                 canvas.before:
                     Color:
-                        rgba: 1, 1, 1, 1
+                        rgba: (1, 0.96, 0.93, 1) if self.state == "down" else (1, 1, 1, 1)
                     RoundedRectangle:
-                        pos: self.pos
+                        pos: self.x, self.y - (dp(2) if self.state == "down" else 0)
                         size: self.size
                         radius: [dp(18)]
                     Color:
-                        rgba: utils.get_color_from_hex("#FF6B00")
+                        rgba: utils.get_color_from_hex("#E85F00") if self.state == "down" else utils.get_color_from_hex("#FF6B00")
                     Line:
-                        rounded_rectangle: self.x, self.y, self.width, self.height, dp(18)
+                        rounded_rectangle: self.x, self.y - (dp(2) if self.state == "down" else 0), self.width, self.height, dp(18)
                         width: 1.5
 
             Button:
@@ -118,8 +115,8 @@
                 on_release: root.enviar_para_analise()
                 canvas.before:
                     Color:
-                        rgba: utils.get_color_from_hex("#FF6B00")
+                        rgba: utils.get_color_from_hex("#E85F00") if self.state == "down" else utils.get_color_from_hex("#FF6B00")
                     RoundedRectangle:
-                        pos: self.pos
+                        pos: self.x, self.y - (dp(2) if self.state == "down" else 0)
                         size: self.size
                         radius: [dp(18)]

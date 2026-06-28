@@ -2,17 +2,11 @@
 #:import utils kivy.utils
 
 <ResultScreen>:
-    canvas.before:
-        Color:
-            rgba: utils.get_color_from_hex("#F0EEEA")
-        Rectangle:
-            pos: self.pos
-            size: self.size
-
     FloatLayout:
 
         # ── Estado: LOADING ──────────────────────────────────────────
         BoxLayout:
+            id: loading_container
             orientation: "vertical"
             spacing: "28dp"
             size_hint: 0.8, None
@@ -84,6 +78,7 @@
 
         # ── Estado: ERRO ─────────────────────────────────────────────
         BoxLayout:
+            id: error_container
             orientation: "vertical"
             spacing: "16dp"
             size_hint: 0.75, None
@@ -92,7 +87,7 @@
             opacity: 1 if root.state == "error" else 0
 
             Image:
-                source: "assets/images/icon_error.png"
+                source: "assets/images/error_icon.png"
                 size_hint: None, None
                 size: "72dp", "72dp"
                 pos_hint: {"center_x": 0.5}
@@ -118,6 +113,7 @@
                 opacity: 1 if root.erro_detalhe else 0
 
             Button:
+                id: retry_button
                 text: "Tentar novamente"
                 font_size: "14sp"
                 bold: True
@@ -128,23 +124,32 @@
                 on_release: root.tentar_novamente()
                 canvas.before:
                     Color:
-                        rgba: utils.get_color_from_hex("#FF6B00")
+                        rgba: utils.get_color_from_hex("#E85F00") if self.state == "down" else utils.get_color_from_hex("#FF6B00")
                     RoundedRectangle:
-                        pos: self.pos
+                        pos: self.x, self.y - (dp(2) if self.state == "down" else 0)
                         size: self.size
                         radius: [dp(14)]
 
             Button:
+                id: home_button
                 text: "Voltar para o início"
                 font_size: "13sp"
-                color: utils.get_color_from_hex("#FF6B00")
                 size_hint_y: None
                 height: "40dp"
                 background_color: 0, 0, 0, 0
+                color: utils.get_color_from_hex("#E85F00") if self.state == "down" else utils.get_color_from_hex("#FF6B00")
                 on_release: root.voltar()
+                canvas.before:
+                    Color:
+                        rgba: (1, 0.96, 0.93, 1) if self.state == "down" else (1, 1, 1, 0)
+                    RoundedRectangle:
+                        pos: self.x, self.y - (dp(2) if self.state == "down" else 0)
+                        size: self.size
+                        radius: [dp(12)]
 
         # ── Estado: SUCESSO ──────────────────────────────────────────
         ScrollView:
+            id: success_container
             size_hint: 1, 1
             pos_hint: {"x": 0, "y": 0}
             opacity: 1 if root.state == "success" else 0
@@ -483,11 +488,11 @@
                     size_hint_y: None
                     height: "56dp"
                     background_color: 0, 0, 0, 0
-                    on_release: root.voltar()
+                    on_press: root.voltar()
                     canvas.before:
                         Color:
-                            rgba: utils.get_color_from_hex("#FF6B00")
+                            rgba: utils.get_color_from_hex("#E85F00") if self.state == "down" else utils.get_color_from_hex("#FF6B00")
                         RoundedRectangle:
-                            pos: self.pos
+                            pos: self.x, self.y - (dp(2) if self.state == "down" else 0)
                             size: self.size
                             radius: [dp(18)]

@@ -2,18 +2,6 @@
 #:import utils kivy.utils
 
 <HomeScreen>:
-    canvas.before:
-        Color:
-            rgba: utils.get_color_from_hex("#F0EEEA")
-        Rectangle:
-            pos: self.pos
-            size: self.size
-        Color:
-            rgba: 1, 1, 1, 1
-        Rectangle:
-            source: "assets/images/bg_pattern.png"
-            pos: self.pos
-            size: self.size
 
     FloatLayout:
 
@@ -46,9 +34,9 @@
                 on_release: app.root.current = "camera"
                 canvas.before:
                     Color:
-                        rgba: utils.get_color_from_hex("#FF6B00")
+                        rgba: utils.get_color_from_hex("#E85F00") if self.state == "down" else utils.get_color_from_hex("#FF6B00")
                     RoundedRectangle:
-                        pos: self.pos
+                        pos: self.x, self.y - (dp(2) if self.state == "down" else 0)
                         size: self.size
                         radius: [dp(18)]
 
@@ -64,8 +52,8 @@
                 on_release: root.abrir_galeria()
                 canvas.before:
                     Color:
-                        rgba: utils.get_color_from_hex("#FF8C2A")
+                        rgba: utils.get_color_from_hex("#F07A12") if self.state == "down" else utils.get_color_from_hex("#FF8C2A")
                     RoundedRectangle:
-                        pos: self.pos
+                        pos: self.x, self.y - (dp(2) if self.state == "down" else 0)
                         size: self.size
                         radius: [dp(18)]
