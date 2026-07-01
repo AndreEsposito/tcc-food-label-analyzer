@@ -142,6 +142,10 @@ coverage/
 logs/
 *.log
 
+# Buildozer / Android debug artifacts
+apps/mobile/Ingresense_app/.buildozer/
+apps/mobile/Ingresense_app/bin/
+
 # Models
 *.pkl
 !apps/ml-lab/models/random_forest.pkl

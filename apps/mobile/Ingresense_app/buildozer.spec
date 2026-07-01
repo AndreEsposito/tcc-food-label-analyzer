@@ -20,6 +20,10 @@ version = 1.0.0
 # Dependências Python
 requirements = python3,kivy==2.3.0,requests,certifi,charset-normalizer,idna,urllib3,plyer
 
+# python-for-android fixado para evitar builds com Python alvo mais novo
+# que o Kivy 2.3.0 ainda nao compila corretamente.
+p4a.branch = v2024.01.21
+
 # Orientação da tela
 orientation = portrait
 
@@ -47,8 +51,10 @@ android.archs = arm64-v8a, armeabi-v7a
 # Aceitar automaticamente as licenças do SDK Android
 android.accept_sdk_license = True
 
-# Gradle — versão recomendada para Kivy 2.3
-android.gradle_dependencies =
+# Dependencias Gradle adicionais.
+# Manter comentado enquanto nao houver dependencias Android nativas; uma chave
+# vazia gera "implementation ''" e quebra o assembleDebug.
+# android.gradle_dependencies =
 
 # Log level do Buildozer (0=erro, 1=info, 2=debug)
 log_level = 2

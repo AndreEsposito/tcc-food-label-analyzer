@@ -132,7 +132,14 @@ A resposta do backend é normalizada para o formato consumido pela tela de resul
 
 ---
 
-## Gerando o APK (Android)
+## Gerando o APK Debug (Android)
+
+O objetivo deste projeto e gerar somente APK Android Debug para testes manuais.
+Nao ha APK Release, AAB, assinatura de producao ou publicacao na Play Store.
+
+O arquivo `apps/mobile/Ingresense_app/buildozer.spec` fixa o
+`python-for-android` em `v2024.01.21`, uma versao compativel com
+`kivy==2.3.0`.
 
 O build utiliza [Buildozer](https://buildozer.readthedocs.io/) e **requer Linux ou WSL**.
 
@@ -155,7 +162,11 @@ sudo apt update && sudo apt install -y \
   libncurses5-dev libncursesw5-dev cmake \
   libffi-dev libssl-dev
 
-pip3 install buildozer cython
+python3 -m pip install --user --break-system-packages \
+  "Cython==0.29.37" "buildozer==1.6.0"
+
+export PATH="$HOME/.local/bin:$PATH"
+export PIP_BREAK_SYSTEM_PACKAGES=1
 ```
 
 ### 3. Configurar a URL de produção
@@ -175,11 +186,34 @@ buildozer android debug
 
 > A primeira execução baixa o Android SDK e NDK (~1 GB) e pode demorar entre 20 e 40 minutos. As execuções seguintes são muito mais rápidas.
 
-O APK gerado estará em `bin/ingresense-1.0.0-arm64-v8a_armeabi-v7a-debug.apk`.
+O APK gerado estara em `bin/ingresense-1.0.0-arm64-v8a_armeabi-v7a-debug.apk`
+ou em outro arquivo `bin/*-debug.apk`, conforme as arquiteturas configuradas.
 
-### 5. Instalar no celular
+### 5. Gerar pelo GitHub Actions
+
+Tambem existe um workflow para gerar o APK automaticamente:
+
+1. Abra a aba **Actions** do repositorio no GitHub.
+2. Selecione **Android Debug APK**.
+3. Clique em **Run workflow**.
+4. Aguarde a execucao terminar.
+5. Abra a execucao finalizada e baixe o artifact **ingresense-debug-apk**.
+6. Extraia o arquivo `.zip`; dentro dele estara o APK Debug.
+
+O workflow publica apenas o artifact do APK Debug e nao cria release.
+
+### 6. Instalar no celular
 
 Transfira o APK para o celular via USB ou qualquer meio e instale. Pode ser necessário habilitar **"Instalar de fontes desconhecidas"** nas configurações do Android.
+
+No Samsung Galaxy S25+, o caminho pode variar conforme o app usado para abrir o
+arquivo. Em geral:
+
+1. Copie o APK para o aparelho.
+2. Abra o APK pelo app **Meus Arquivos**, navegador ou Google Drive.
+3. Quando o Android bloquear a instalacao, toque em **Configuracoes**.
+4. Habilite **Permitir desta fonte** para o app usado.
+5. Volte ao APK e confirme **Instalar**.
 
 ---
 

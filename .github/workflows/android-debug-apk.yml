@@ -1,0 +1,52 @@
+name: Android Debug APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/mobile/Ingresense_app/**"
+      - ".github/workflows/android-debug-apk.yml"
+
+jobs:
+  build-debug-apk:
+    name: Build debug APK
+    runs-on: ubuntu-22.04
+    env:
+      PIP_BREAK_SYSTEM_PACKAGES: "1"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git zip unzip openjdk-17-jdk \
+            autoconf libtool pkg-config zlib1g-dev \
+            libncurses5-dev libncursesw5-dev libtinfo6 \
+            cmake libffi-dev libssl-dev
+
+      - name: Install Buildozer
+        run: |
+          python -m pip install --upgrade pip wheel setuptools
+          python -m pip install "Cython==0.29.37" "buildozer==1.6.0"
+
+      - name: Build APK Debug
+        working-directory: apps/mobile/Ingresense_app
+        run: buildozer android debug
+
+      - name: Upload APK Debug artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ingresense-debug-apk
+          path: apps/mobile/Ingresense_app/bin/*-debug.apk
+          if-no-files-found: error
+          retention-days: 14

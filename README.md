@@ -40,6 +40,30 @@ cd apps/backend
 # siga as instrucoes do README do backend
 ```
 
+## APK Debug Android
+
+O projeto gera apenas APK Android Debug para testes manuais. Nao ha APK Release,
+AAB, assinatura de producao ou publicacao na Play Store.
+
+Para gerar automaticamente pelo GitHub Actions:
+
+1. Abra a aba **Actions** do repositorio no GitHub.
+2. Selecione o workflow **Android Debug APK**.
+3. Clique em **Run workflow**.
+4. Ao terminar, abra a execucao e baixe o artifact **ingresense-debug-apk**.
+5. Extraia o `.zip` baixado e transfira o arquivo `*-debug.apk` para o Android.
+
+Para gerar localmente, use Linux ou WSL:
+
+```bash
+cd apps/mobile/Ingresense_app
+buildozer android debug
+```
+
+O APK local fica em `apps/mobile/Ingresense_app/bin/*-debug.apk`.
+No celular, habilite a instalacao por fontes desconhecidas para o app usado
+para abrir o arquivo, toque no APK e confirme a instalacao.
+
 ## Mapa de Documentacao (README Hub)
 Este README da raiz funciona como ponto central. A documentacao detalhada fica nos READMEs especificos:
 
