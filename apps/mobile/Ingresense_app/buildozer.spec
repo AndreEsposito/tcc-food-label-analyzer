@@ -18,7 +18,7 @@ source.include_patterns = assets/*,assets/images/*,layouts/*.kv,config/*.py,scre
 version = 1.0.0
 
 # Dependências Python
-requirements = python3,kivy==2.3.0,requests,certifi,charset-normalizer,idna,urllib3,plyer
+requirements = python3,kivy==2.3.0,requests,certifi,charset-normalizer,idna,urllib3,plyer,pyjnius
 
 # python-for-android fixado para evitar builds com Python alvo mais novo
 # que o Kivy 2.3.0 ainda nao compila corretamente.
@@ -38,7 +38,7 @@ fullscreen = 0
 android.presplash_color = #F0EEEA
 
 # Permissões necessárias
-android.permissions = INTERNET,CAMERA,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
+android.permissions = INTERNET,CAMERA,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE,READ_MEDIA_IMAGES
 
 # API Android mínima e alvo
 android.minapi = 21
