@@ -45,8 +45,8 @@ android.minapi = 21
 android.api = 33
 android.ndk = 25b
 
-# Arquitetura (cobre a maioria dos Android modernos)
-android.archs = arm64-v8a, armeabi-v7a
+# Arquitetura alvo do APK Debug
+android.archs = arm64-v8a
 
 # Aceitar automaticamente as licenças do SDK Android
 android.accept_sdk_license = True

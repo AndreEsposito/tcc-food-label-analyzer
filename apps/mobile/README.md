@@ -186,8 +186,8 @@ buildozer android debug
 
 > A primeira execução baixa o Android SDK e NDK (~1 GB) e pode demorar entre 20 e 40 minutos. As execuções seguintes são muito mais rápidas.
 
-O APK gerado estara em `bin/ingresense-1.0.0-arm64-v8a_armeabi-v7a-debug.apk`
-ou em outro arquivo `bin/*-debug.apk`, conforme as arquiteturas configuradas.
+O APK gerado estara em `bin/ingresense-1.0.0-arm64-v8a-debug.apk`
+ou em outro arquivo `bin/*-debug.apk`, conforme a arquitetura configurada.
 
 ### 5. Gerar pelo GitHub Actions
 
