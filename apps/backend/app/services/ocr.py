@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 from google.api_core.exceptions import DeadlineExceeded, GoogleAPICallError, RetryError
-from google.auth.exceptions import DefaultCredentialsError
+from google.auth.exceptions import DefaultCredentialsError, GoogleAuthError
 from google.oauth2 import service_account
 from google.cloud import vision
 
@@ -28,7 +28,18 @@ class OCRService(ABC):
 class GoogleVisionOCRService(OCRService):
     def __init__(self, settings: Settings):
         self._timeout_seconds = settings.google_vision_timeout_seconds
-        self._client = self._build_client(settings)
+        self._app_env = (settings.app_env or "").lower()
+        self._has_explicit_credentials = bool(
+            settings.google_application_credentials
+            or settings.google_credentials_json
+            or os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+        )
+        self._client_error = None
+        try:
+            self._client = self._build_client(settings)
+        except OCRAuthenticationError as exc:
+            self._client = None
+            self._client_error = exc
 
     def _build_client(self, settings: Settings) -> vision.ImageAnnotatorClient:
         credentials_path = settings.google_application_credentials
@@ -54,7 +65,13 @@ class GoogleVisionOCRService(OCRService):
                 )
                 return vision.ImageAnnotatorClient(credentials=credentials)
 
-        return vision.ImageAnnotatorClient()
+        try:
+            return vision.ImageAnnotatorClient()
+        except DefaultCredentialsError as exc:
+            logger.error("Credenciais padrao do Google nao encontradas: %s", exc)
+            raise OCRAuthenticationError(
+                "Credenciais da Google Vision API nao configuradas corretamente."
+            ) from exc
 
     def extract_text(self, image_bytes: bytes) -> str:
         logger.debug(f"Iniciando extração de texto (tamanho: {len(image_bytes)} bytes)")
@@ -63,15 +80,27 @@ class GoogleVisionOCRService(OCRService):
             logger.error("Imagem vazia recebida")
             raise OCRNoTextError("Imagem vazia.")
 
+        if self._app_env in {"production", "prod"} and not self._has_explicit_credentials:
+            logger.error(
+                "Credenciais Google Vision ausentes em producao. Configure "
+                "GOOGLE_CREDENTIALS_JSON ou GOOGLE_APPLICATION_CREDENTIALS."
+            )
+            raise OCRAuthenticationError(
+                "Credenciais da Google Vision API nao configuradas corretamente."
+            )
+        if self._client_error is not None:
+            raise self._client_error
+
         image = vision.Image(content=image_bytes)
         try:
             logger.debug("Enviando requisição para Google Vision API...")
             response = self._client.text_detection(
                 image=image,
+                retry=None,
                 timeout=self._timeout_seconds,
             )
             logger.debug("Resposta recebida do Google Vision API")
-        except DefaultCredentialsError as exc:
+        except (DefaultCredentialsError, GoogleAuthError) as exc:
             logger.error(f"Erro de autenticação Google Vision: {exc}")
             raise OCRAuthenticationError(
                 "Credenciais da Google Vision API nao configuradas corretamente."

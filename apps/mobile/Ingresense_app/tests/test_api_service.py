@@ -5,7 +5,13 @@ APP_DIR = Path(__file__).resolve().parents[1]
 if str(APP_DIR) not in sys.path:
     sys.path.insert(0, str(APP_DIR))
 
-from services.api_service import _normalizar_resposta
+from requests import Response
+
+from services.api_service import (
+    _erro_por_codigo,
+    _extrair_detalhe_servidor,
+    _normalizar_resposta,
+)
 
 
 def test_normalizar_resposta_com_contrato_novo():
@@ -63,3 +69,20 @@ def test_normalizar_resposta_com_contrato_antigo():
     assert resultado["evidencias"] == []
     assert resultado["ingredientes_detectados"] == []
     assert resultado["aviso"] == ""
+
+
+def test_erro_por_codigo_preserva_codigo_http_real():
+    resultado = _erro_por_codigo(502, "Falha ao processar OCR.")
+
+    assert resultado["codigo"] == 502
+    assert "0" not in resultado["erro"]
+    assert resultado["detalhe_tecnico"] == "Falha ao processar OCR."
+
+
+def test_extrair_detalhe_servidor_lendo_detail_json():
+    response = Response()
+    response.status_code = 422
+    response._content = b'{"detail":"Nao foi possivel extrair texto da imagem."}'
+    response.headers["Content-Type"] = "application/json"
+
+    assert _extrair_detalhe_servidor(response) == "Nao foi possivel extrair texto da imagem."

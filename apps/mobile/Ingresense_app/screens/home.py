@@ -1,6 +1,5 @@
-import os
 from .base import BaseScreen
-from kivy.clock import Clock
+from utils.image_files import prepare_image_for_app
 
 
 class HomeScreen(BaseScreen):
@@ -22,8 +21,10 @@ class HomeScreen(BaseScreen):
         if not selecao:
             return  # Usuário cancelou
 
-        caminho = selecao[0]
-        if not os.path.exists(caminho):
+        try:
+            caminho = prepare_image_for_app(selecao[0])
+        except Exception as e:
+            print(f"[HomeScreen] Erro ao preparar imagem selecionada: {e}")
             return
 
         # Passa o caminho para a tela de preview
