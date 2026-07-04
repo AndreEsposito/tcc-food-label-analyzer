@@ -11,7 +11,7 @@ class HomeScreen(BaseScreen):
             filechooser.open_file(
                 title="Selecionar imagem do rótulo",
                 filters=[["Imagens", "*.png", "*.jpg", "*.jpeg"]],
-                on_selection=self.on_imagem_selecionada
+                on_selection=self.on_imagem_selecionada,
             )
         except Exception as e:
             print(f"[HomeScreen] Erro ao abrir galeria: {e}")
@@ -19,7 +19,7 @@ class HomeScreen(BaseScreen):
     def on_imagem_selecionada(self, selecao):
         """Callback chamado após o usuário selecionar uma imagem."""
         if not selecao:
-            return  # Usuário cancelou
+            return
 
         try:
             caminho = prepare_image_for_app(selecao[0])
@@ -27,7 +27,6 @@ class HomeScreen(BaseScreen):
             print(f"[HomeScreen] Erro ao preparar imagem selecionada: {e}")
             return
 
-        # Passa o caminho para a tela de preview
         preview = self.manager.get_screen("preview")
         preview.image_path = caminho
         self.manager.current = "preview"

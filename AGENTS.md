@@ -1,8 +1,8 @@
 # AGENTS.md
 
-Guia para agentes de IA e colaboradores do projeto de TCC.
+Guia operacional para agentes de IA, Codex e colaboradores humanos do projeto de TCC **Análise Inteligente de Rótulos Alimentares**.
 
-Este arquivo define o **contexto do projeto, arquitetura, responsabilidades e diretrizes de desenvolvimento**, para que qualquer agente de IA ou colaborador humano consiga compreender rapidamente o sistema e contribuir de forma consistente.
+Este arquivo define o contexto acadêmico, a arquitetura real do sistema, a stack efetivamente utilizada, os contratos principais e as regras de manutenção do projeto. O objetivo é permitir que qualquer agente de IA compreenda rapidamente o estado atual da aplicação e contribua de forma segura, conservadora e coerente com o escopo do TCC.
 
 ---
 
@@ -10,416 +10,617 @@ Este arquivo define o **contexto do projeto, arquitetura, responsabilidades e di
 
 Este repositório contém o desenvolvimento de um **Trabalho de Conclusão de Curso (TCC) em Ciência da Computação**.
 
-O objetivo inicial do projeto é desenvolver **um aplicativo mobile que auxilia consumidores na identificação de alimentos ultraprocessados, analisando a lista de ingredientes presente nos rótulos alimentícios**.  
-A arquitetura do sistema será modular, permitindo que, futuramente, sejam incorporadas outras categorias de análise, como detecção de lactose, glúten, classificação vegana/vegetariana e recomendações nutricionais.  
-Assim, o projeto visa criar uma base flexível para expandir as funcionalidades conforme novas necessidades ou pesquisas acadêmicas.
+O objetivo do projeto é desenvolver um **aplicativo mobile para apoio à identificação de indícios de ultraprocessamento em alimentos por meio da análise textual da lista de ingredientes presente nos rótulos alimentícios**.
 
-O sistema utiliza:
+O sistema permite que o usuário capture ou selecione uma imagem de um rótulo, envie essa imagem para processamento, extraia o texto por OCR, analise os ingredientes e receba uma resposta compreensível sobre possíveis indícios de ultraprocessamento.
 
-- captura de imagem do rótulo do produto
-- OCR para extração textual
-- processamento do texto
-- classificação baseada em regras e aprendizado de máquina
-- retorno explicável ao usuário
+O foco desta versão é:
 
-A proposta baseia-se no pré-projeto acadêmico do TCC. :contentReference[oaicite:4]{index=4}
+- captura ou seleção de imagem de rótulo alimentício;
+- extração textual com OCR;
+- pré-processamento dos ingredientes;
+- classificação baseada em regras heurísticas;
+- uso experimental de Random Forest para fins acadêmicos/comparativos;
+- geração de explicação amigável para o usuário final;
+- validação com exemplos reais de produtos.
 
----
-
-# 2. Fluxo Geral do Sistema
-
-Fluxo simplificado da aplicação:
-
-Usuário  
-↓  
-Aplicativo Mobile  
-↓  
-Envio da imagem do rótulo  
-↓  
-Backend API  
-↓  
-OCR (Google Vision API)  
-↓  
-Pré-processamento textual  
-↓  
-Motor de classificação  
-↓  
-Resultado com explicação  
-↓  
-Retorno para o aplicativo
-
-O sistema deve priorizar **clareza, modularidade e explicabilidade do resultado**.
+Funcionalidades como detecção de lactose, glúten, classificação vegana/vegetariana e recomendações nutricionais personalizadas são consideradas **trabalhos futuros** e não fazem parte do escopo principal atual.
 
 ---
 
-# 3. Arquitetura do Sistema
+# 2. Regra Fundamental: Implementação Antes da Documentação
 
-A arquitetura é organizada em **domínios funcionais**, seguindo a estrutura definida para o projeto. :contentReference[oaicite:5]{index=5}
+> **A documentação deve refletir a implementação existente, nunca o contrário.**
+
+Sempre que uma alteração funcional, técnica ou arquitetural for solicitada, o agente deve seguir obrigatoriamente esta ordem:
+
+1. entender a solicitação;
+2. analisar a arquitetura atual do projeto;
+3. implementar as mudanças solicitadas no código;
+4. validar que a implementação ficou consistente;
+5. garantir que nada além do solicitado foi alterado;
+6. atualizar testes, quando necessário;
+7. somente depois atualizar a documentação técnica ou acadêmica impactada.
+
+Durante uma tarefa em andamento, é aceitável que a documentação fique temporariamente desatualizada. Porém, nenhuma tarefa deve ser considerada concluída enquanto a documentação impactada não estiver sincronizada com a implementação final.
+
+Não atualizar README, ARCHITECTURE.md, diagramas, relatório ou qualquer outro documento antes de concluir e validar a implementação solicitada.
 
 ---
 
-## 3.1 Domínio Mobile
+# 3. Fluxo Geral Real do Sistema
 
-Responsável pela interação com o usuário.
+Fluxo atual da aplicação:
 
-Funções principais:
+```text
+Usuário
+↓
+Aplicativo Mobile em Kivy
+↓
+Captura ou seleção da imagem do rótulo
+↓
+POST /analises
+multipart/form-data com campo "imagem"
+↓
+Backend FastAPI
+↓
+Google Vision API
+↓
+Pré-processamento textual
+↓
+Motor de classificação
+  ├── regras heurísticas
+  └── Random Forest experimental
+↓
+Camada de explicação amigável
+↓
+Resposta JSON expandida
+↓
+Tela de resultado no aplicativo mobile
+```
 
-- captura de imagem do rótulo
-- upload da imagem
-- comunicação com API
-- exibição do resultado
-- exibição da justificativa da classificação
-- tratamento de erros
+O sistema deve preservar clareza, modularidade, explicabilidade e viabilidade acadêmica.
 
 ---
 
-## 3.2 Domínio API Backend
+# 4. Stack Tecnológica Real
 
-Camada central de orquestração.
+Esta é a stack efetivamente utilizada no projeto. Não assumir outras tecnologias como parte ativa da implementação.
+
+## Mobile
+
+- Python
+- Kivy
+- Buildozer / python-for-android para empacotamento Android
+- Requests para comunicação HTTP com o backend
+
+## Backend
+
+- Python
+- FastAPI
+- Uvicorn
+- Pydantic
+
+## OCR
+
+- Google Vision API
+
+## Classificação e IA Experimental
+
+- Python
+- Scikit-learn
+- Random Forest experimental
+- Pandas quando necessário para treino/análise de dados
+
+## Infraestrutura
+
+- Render para hospedagem da API
+
+## Versionamento
+
+- Git
+- GitHub
+
+## Tecnologias que não devem ser assumidas
+
+Não assumir que o projeto utiliza atualmente:
+
+- Flutter;
+- Kotlin;
+- KivyMD;
+- Docker;
+- AWS;
+- banco de dados;
+- autenticação de usuários;
+- armazenamento persistente de análises.
+
+Essas tecnologias só devem ser propostas se houver solicitação explícita e justificativa clara de viabilidade para o TCC.
+
+---
+
+# 5. Estrutura Arquitetural do Repositório
+
+A arquitetura atual é organizada de forma modular.
+
+```text
+apps/
+  backend/
+    app/
+      api/
+      models/
+      services/
+    tests/
+
+  mobile/
+    Ingresense_app/
+      main.py
+      config/
+      layouts/
+      screens/
+      services/
+      buildozer.spec
+
+packages/
+  classification_core/
+    pipeline.py
+    preprocessing.py
+    feature_extractor.py
+    rule_based.py
+    ml.py
+    explanation_generator.py
+
+apps/ml-lab/
+  data/
+  train_model.py
+```
+
+## 5.1 Backend
+
+Responsável por orquestrar o fluxo principal da análise.
 
 Responsabilidades:
 
-- receber requisição do aplicativo
-- validar requisições
-- integrar com OCR
-- acionar pré-processamento textual
-- acionar motor de classificação
-- montar resposta final
-- retornar resultado ao aplicativo
+- expor a API HTTP;
+- receber imagem enviada pelo app;
+- validar arquivo recebido;
+- chamar o serviço de OCR;
+- acionar o pipeline de classificação;
+- montar a resposta compatível com o contrato da API;
+- tratar erros de forma segura.
 
-Entrada:
+## 5.2 Mobile
 
+Responsável pela interação com o usuário.
+
+Responsabilidades:
+
+- exibir tela inicial;
+- permitir captura ou seleção de imagem;
+- enviar imagem para a API;
+- exibir tela de carregamento;
+- apresentar resultado amigável;
+- tratar erros de comunicação e processamento;
+- preservar compatibilidade com execução em dispositivo Android.
+
+## 5.3 Classification Core
+
+Responsável pela lógica de análise textual e classificação.
+
+Responsabilidades:
+
+- pré-processar texto extraído do OCR;
+- extrair características dos ingredientes;
+- aplicar regras heurísticas;
+- executar modelo Random Forest de forma experimental, quando disponível;
+- gerar explicação amigável;
+- retornar estrutura consolidada para o backend.
+
+## 5.4 ML Lab
+
+Área experimental para treino, validação e análise do modelo Random Forest.
+
+O conteúdo deste módulo serve principalmente para fins acadêmicos, comparação de resultados e documentação do TCC.
+
+---
+
+# 6. Contrato Atual da API
+
+## 6.1 Endpoint Principal
+
+```http
+POST /analises
 Content-Type: multipart/form-data
+Campo do arquivo: imagem
+```
 
-Saída:
+O aplicativo mobile deve enviar a imagem usando o campo `imagem`.
 
-``` json
+Não renomear este endpoint, o campo do arquivo ou a estrutura da resposta sem atualizar todas as camadas impactadas.
+
+## 6.2 Resposta Esperada
+
+Formato geral da resposta:
+
+```json
 {
   "analiseId": "1a2b3c4d-5678-90ab-cdef-123456789000",
   "status": "CLASSIFICADO",
   "classificacao": {
     "categoria": "ultraprocessado",
     "status": "ALTO_INDICIO",
-    "justificativa": "O produto contém ingredientes e aditivos comumente associados a alimentos ultraprocessados, como aromatizantes, corantes e conservantes."
+    "justificativa": "O produto contém ingredientes e aditivos comumente associados a alimentos ultraprocessados.",
+    "novaGrupo": 4,
+    "titulo": "Alto indício de ultraprocessamento",
+    "resumo": "Foram encontrados ingredientes associados a alimentos ultraprocessados.",
+    "orientacao": "Considere comparar este produto com opções com menor lista de ingredientes.",
+    "evidencias": [
+      {
+        "termo": "aromatizante",
+        "tipo": "aditivo",
+        "descricao": "Ingrediente frequentemente associado a produtos ultraprocessados."
+      }
+    ],
+    "ingredientesDetectados": [
+      "aromatizante",
+      "corante",
+      "gordura vegetal"
+    ],
+    "aviso": "Esta análise possui caráter informativo e não substitui avaliação profissional."
   }
 }
 ```
 
----
-
-## 3.3 Domínio de OCR
-
-Responsável por extrair texto da imagem.
-
-Tecnologia principal:
-
-Google Vision API.
-
-Responsabilidades:
-
-- envio da imagem ao OCR
-- recebimento do texto extraído
-- identificação da lista de ingredientes
-
-Entrada:
-
-``` json
-{
-  "image": {
-    "content": "BASE64_DA_IMAGEM"
-  },
-  "features": [
-    {
-      "type": "TEXT_DETECTION"
-    }
-  ],
-  "imageContext": {
-    "languageHints": [
-      "pt-BR"
-    ]
-  }
-}
-```
-
-Saída:
-
-``` json
-{
-  "textAnnotations": [
-    {
-      "description": "INGREDIENTES: açúcar, farinha..."
-    }
-  ],
-  "fullTextAnnotation": {
-    "text": "INGREDIENTES: açúcar, farinha..."
-  }
-}
-```
+O contrato pode evoluir, mas qualquer mudança deve preservar compatibilidade com o aplicativo mobile ou atualizar explicitamente o app junto com o backend.
 
 ---
 
-## 3.4 Domínio de Pré-processamento Textual
+# 7. Papel da Classificação e do Random Forest
 
-Transforma o texto bruto em dados estruturados.
+A classificação oficial apresentada ao usuário é baseada principalmente no **motor de regras heurísticas**.
 
-Responsabilidades:
+O Random Forest possui papel **experimental e acadêmico**. Ele pode ser utilizado para:
 
-- limpeza do texto
-- remoção de ruído
-- normalização
-- separação da lista de ingredientes
-- padronização de termos
-- tokenização simples
+- comparação de resultados;
+- avaliação técnica;
+- geração de métricas;
+- discussão no relatório;
+- apoio à análise do motor de classificação.
 
-Entrada:
+Não transformar o Random Forest na fonte oficial da decisão final sem aprovação explícita do grupo.
 
-INGREDIENTES: açúcar, farinha de trigo, gordura vegetal, aromatizante.
-
-Saída:
-
-``` json
-[
-  "açúcar",
-  "farinha de trigo",
-  "gordura vegetal",
-  "aromatizante"
-]
-```
+Não remover o módulo experimental sem solicitação explícita, pois ele sustenta parte dos objetivos acadêmicos do projeto.
 
 ---
 
-## 3.5 Domínio de Classificação
+# 8. Camada de Explicação Amigável
 
-Coração lógico do sistema.
+A resposta ao usuário não deve ser apenas técnica.
 
-Utiliza duas abordagens complementares.
+O sistema deve apresentar uma explicação compreensível, com linguagem acessível e caráter informativo.
 
-### Classificação baseada em regras
+A camada de explicação amigável deve priorizar:
 
-- lista de ingredientes associados ao ultraprocessamento e futuramente outras categorias
-- pesos e critérios
-- score de processamento
-- geração de justificativa
+- título claro;
+- resumo objetivo;
+- justificativa compreensível;
+- orientação prática;
+- evidências encontradas;
+- lista de ingredientes relevantes;
+- aviso de caráter informativo.
 
-### Classificação baseada em Machine Learning
+Evitar respostas excessivamente técnicas, frias ou baseadas apenas em score interno.
 
-Modelo experimental:
-
-Random Forest.
-
-Responsabilidades:
-
-- preparação do dataset
-- engenharia de features
-- treinamento
-- inferência
-
-Entrada:
-
-``` json
-{
-  "analiseId": "1a2b3c4d-5678-90ab-cdef-123456789000",
-  "ingredientes": [
-    "açúcar",
-    "farinha de trigo",
-    "gordura vegetal",
-    "aromatizante"
-  ]
-}
-```
-
-Saída:
-
-``` json
-{
-  "analiseId": "1a2b3c4d-5678-90ab-cdef-123456789000",
-  "classificacao": {
-    "categoria": "ultraprocessado",
-    "status": "ALTO_INDICIO",
-    "justificativa": "O produto contém ingredientes e aditivos comumente associados a alimentos ultraprocessados."
-  }
-}
-```
+O objetivo do projeto é ajudar o consumidor a interpretar melhor a lista de ingredientes, não apenas exibir uma classificação bruta.
 
 ---
 
-## 3.6 Domínio de Dados, Testes e Validação
+# 9. Regras para Alterações de Código
 
-Suporte científico ao TCC.
+Ao implementar qualquer solicitação neste projeto, o agente deve atuar com extrema cautela, preservando a estabilidade da aplicação.
 
-Responsabilidades:
+## 9.1 Alterar Apenas o Solicitado
 
-- coleta de rótulos
-- montagem do dataset
-- rotulagem de dados
-- definição de casos de teste
-- validação com produtos reais
-- coleta de métricas
+- Não realizar refatorações desnecessárias.
+- Não reestruturar a arquitetura sem solicitação explícita.
+- Não renomear arquivos, classes, funções, endpoints ou diretórios apenas por preferência.
+- Não alterar contratos públicos da API sem necessidade.
+- Não modificar telas, fluxos ou comportamentos já existentes que não façam parte da solicitação.
+- Não adicionar dependências sem necessidade clara.
+- Não substituir tecnologias já utilizadas por alternativas não solicitadas.
 
-Esse domínio fornece **evidências para o relatório acadêmico**.
+## 9.2 Preservar Funcionalidades Existentes
+
+Antes de alterar qualquer componente, analisar seus impactos sobre o restante do sistema.
+
+Assuma que toda funcionalidade existente está em uso no projeto e deve ser preservada.
+
+O agente deve ser zeloso e conservador:
+
+- preferir alterações pequenas e localizadas;
+- evitar mudanças colaterais;
+- não mexer em funcionalidades já em funcionamento;
+- preservar comportamento existente sempre que a solicitação não pedir mudança;
+- garantir que a correção não quebre fluxos já implementados.
+
+## 9.3 Garantir que Nada Além do Pedido Foi Alterado
+
+Após concluir qualquer ajuste, o agente deve revisar as mudanças e confirmar que:
+
+- apenas os arquivos necessários foram modificados;
+- apenas o comportamento solicitado foi alterado;
+- nenhuma funcionalidade existente foi removida;
+- nenhum fluxo funcional foi impactado sem necessidade;
+- nenhum contrato foi quebrado;
+- nenhuma alteração oportunista foi incluída.
+
+Se uma melhoria adicional for identificada, ela deve ser registrada como sugestão separada, não implementada automaticamente.
+
+## 9.4 Preservar Compatibilidade Entre Módulos
+
+Toda alteração deve manter compatibilidade entre:
+
+- aplicativo mobile;
+- API Backend;
+- OCR;
+- motor de classificação;
+- camada de explicação amigável;
+- contrato JSON;
+- fluxo completo da aplicação.
+
+Nenhum módulo deve ser alterado de forma isolada sem verificar impacto nos demais.
 
 ---
 
-# 4. Fases do Projeto
+# 10. Compatibilidade Mobile e Android
 
-O projeto segue fases estruturadas. :contentReference[oaicite:6]{index=6}
+Este projeto possui um aplicativo mobile em Kivy destinado à execução em dispositivos Android.
 
-1. Refinamento do projeto  
-2. Definição da arquitetura  
-3. Implementação do sistema e prototipação
-4. Integração e testes  
-5. Montagem da apresentação do TCC  
-6. Preparação da banca
+Ao realizar alterações, o agente deve preservar não apenas a execução local do backend ou do app em ambiente de desenvolvimento, mas também o funcionamento completo no celular.
 
-Relatório acadêmico deve ser desenvolvido **paralelamente ao desenvolvimento do software**, garantindo coerência entre a implementação e a estrutura do relatório.
+Antes de considerar uma tarefa concluída, verificar se as mudanças continuam compatíveis com:
 
-Agentes devem considerar **em qual fase o projeto se encontra antes de propor mudanças estruturais**.
+- Buildozer;
+- empacotamento Android;
+- permissões necessárias para câmera/galeria, quando aplicável;
+- comunicação HTTP entre mobile e backend;
+- upload de imagens;
+- endpoint `POST /analises`;
+- campo `imagem` no multipart;
+- resposta JSON consumida pelo app;
+- exibição correta da tela de resultado;
+- tratamento de erros no dispositivo móvel.
 
----
+Nunca assumir que uma alteração é segura apenas porque o backend executa localmente.
 
-# 5. Organização em Sprints
+O fluxo abaixo deve permanecer íntegro:
 
-O desenvolvimento ocorre principalmente **nos finais de semana**.
-
-As sprints devem ter duração de **1 ou 2 semanas**.
-
-Cada sprint deve definir:
-
-- objetivo
-- tarefas
-- responsáveis
-- entregáveis esperados
-
-Sempre que possível, verificar:
-
-"O grupo já definiu as tarefas da próxima sprint?"
-
----
-
-# 6. Stack Tecnológica Inicial
-
-Tecnologias consideradas para o projeto:
-
-Mobile
-
-- Flutter ou Kotlin
-
+```text
+Mobile Android
+↓
 Backend
-
-- Python
-
+↓
 OCR
-
-- Google Vision API
-
-Machine Learning
-
-- Random Forest
-
-Cloud (opcional)
-
-- AWS
-
-Versionamento
-
-- Git
-
-Agentes devem priorizar **soluções simples e viáveis para um projeto acadêmico**.
+↓
+Classificação
+↓
+Explicação amigável
+↓
+Resposta JSON
+↓
+Mobile Android
+```
 
 ---
 
-# 7. Responsabilidades da Equipe
+# 11. Diretrizes para Codex e Agentes de IA
 
-| Integrante | Responsabilidade |
-|---|---|
-| André (líder) | Arquitetura, backend, integração com OCR e pré-processamento |
-| Matheus | Motor de classificação e modelo de ML |
-| Leo | Aplicativo mobile |
-| Pedro | Documentação acadêmica e relatório |
+Ao trabalhar neste repositório, o agente deve se comportar como um engenheiro de manutenção cuidadoso, não como alguém tentando redesenhar o projeto inteiro.
+
+## 11.1 Antes de Implementar
+
+- Ler os arquivos relevantes antes de alterar código.
+- Entender o fluxo atual.
+- Identificar o menor conjunto de mudanças necessário.
+- Verificar se a alteração impacta backend, mobile, contrato JSON ou relatório.
+- Em caso de dúvida, preferir a solução mais simples e conservadora.
+
+## 11.2 Durante a Implementação
+
+- Reutilizar componentes existentes.
+- Reutilizar `packages/classification_core` para lógica de classificação.
+- Reutilizar schemas existentes quando possível.
+- Preservar endpoint `POST /analises`.
+- Preservar campo `imagem` no upload multipart.
+- Preservar resposta amigável consumida pelo mobile.
+- Evitar duplicação de lógica.
+- Evitar grandes refatorações.
+- Evitar alterações cosméticas fora do escopo.
+
+## 11.3 Depois da Implementação
+
+- Conferir se o que foi pedido foi atendido.
+- Conferir se nada além do pedido foi alterado.
+- Conferir se o backend continua compatível com o app mobile.
+- Conferir se o app continua compatível com Android.
+- Atualizar documentação somente após a implementação estar finalizada.
+- Registrar riscos ou pontos pendentes quando não for possível validar algo completamente.
 
 ---
 
-# 8. Diretrizes de Engenharia
+# 12. Fases do Projeto
 
-Ao contribuir para o projeto:
+O projeto segue fases estruturadas:
+
+1. Refinamento do projeto;
+2. Definição da arquitetura;
+3. Prototipação;
+4. Implementação do sistema;
+5. Integração e testes;
+6. Escrita final do TCC;
+7. Preparação da banca.
+
+Sempre considerar em qual fase o projeto está antes de propor mudanças estruturais.
+
+O desenvolvimento ocorre principalmente em mini sprints de 1 ou 2 semanas, com objetivo, tarefas, responsáveis e entregáveis esperados.
+
+Quando apropriado, verificar:
+
+> O grupo já definiu as tarefas da próxima sprint?
+
+---
+
+# 13. Responsabilidades da Equipe
+
+| Integrante | Domínio principal | Responsabilidades |
+|---|---|---|
+| André (líder) | Arquitetura, backend, cloud e IA | Arquitetura do sistema, backend, OCR, pré-processamento, integração, infraestrutura e decisões técnicas |
+| Leo | Mobile, redes e DevOps | Aplicativo mobile, fluxo de telas, integração com API, apoio em execução/deploy |
+| Matheus | ABNT, documentação e IA | Motor de classificação, regras, Random Forest experimental, apoio na documentação técnica/acadêmica |
+| Pedro | Escrita acadêmica e documentação | Relatório, revisão textual, organização acadêmica, preparação da banca |
+
+---
+
+# 14. Escopo do Projeto
+
+O foco principal do TCC é identificar **indícios de ultraprocessamento em alimentos com base na análise textual da lista de ingredientes**.
+
+Faz parte do escopo atual:
+
+- aplicativo mobile simples e funcional;
+- envio de imagem de rótulo;
+- OCR com Google Vision API;
+- pré-processamento textual;
+- classificação por regras;
+- Random Forest experimental;
+- explicação amigável;
+- validação com exemplos reais.
+
+Não faz parte do escopo atual:
+
+- identificação de lactose;
+- identificação de glúten;
+- classificação vegana;
+- classificação vegetariana;
+- recomendações nutricionais personalizadas;
+- login de usuários;
+- histórico de análises;
+- banco de dados;
+- painel administrativo;
+- arquitetura complexa de produção.
+
+Ideias fora do escopo devem ser classificadas como melhoria futura, trabalho futuro ou extensão do projeto.
+
+---
+
+# 15. Diretrizes de Engenharia
 
 Priorizar:
 
-- simplicidade
-- modularidade
-- clareza arquitetural
-- separação de responsabilidades
-- explicabilidade do sistema
-- viabilidade acadêmica
+- simplicidade;
+- modularidade;
+- clareza arquitetural;
+- separação de responsabilidades;
+- explicabilidade;
+- baixo risco de regressão;
+- compatibilidade entre backend e mobile;
+- viabilidade acadêmica.
 
 Evitar:
 
-- complexidade excessiva
-- dependências desnecessárias
-- pipelines de ML complexos demais
-- tecnologias difíceis de implementar no prazo do TCC.
+- complexidade excessiva;
+- dependências desnecessárias;
+- refatorações amplas;
+- mudanças não solicitadas;
+- pipelines de ML complexos demais;
+- tecnologias difíceis de manter no prazo do TCC;
+- alterações que funcionem apenas localmente e quebrem no Android.
+
+Sempre que uma solução parecer complexa demais, questionar:
+
+> Essa complexidade é realmente necessária para este TCC?
+
+Se não for, propor alternativa mais simples.
 
 ---
 
-# 9. Riscos do Projeto
+# 16. Riscos do Projeto
 
-Possíveis riscos:
+Riscos relevantes:
 
-- complexidade excessiva
-- dificuldades na implementação da IA
-- problemas na integração com OCR
-- falta de dataset
-- atraso no desenvolvimento
+- complexidade excessiva;
+- alteração indevida de funcionalidade já funcionando;
+- quebra de compatibilidade entre backend e mobile;
+- funcionamento local sem funcionamento no celular;
+- dificuldades com OCR;
+- ausência ou limitação de dataset;
+- Random Forest com papel maior do que o necessário;
+- atraso no desenvolvimento;
+- documentação desalinhada da implementação.
 
-Quando identificar um risco, agentes devem sugerir **alternativas mais simples e viáveis**.
-
----
-
-# 10. Escopo do Projeto
-
-O foco principal do TCC é:
-
-identificar **indícios de ultraprocessamento em alimentos com base na análise da lista de ingredientes**.
-
-Outras análises podem ser consideradas **trabalhos futuros**, como:
-
-- detecção de lactose
-- detecção de glúten
-- classificação vegana/vegetariana
-- recomendações nutricionais
-
-Essas funcionalidades **não fazem parte do escopo inicial do TCC**.
+Ao identificar risco, sugerir mitigação simples e viável.
 
 ---
 
-# 11. Coerência Acadêmica
+# 17. Coerência Acadêmica
 
-O desenvolvimento do software deve sempre manter coerência com:
+O desenvolvimento do software deve manter coerência com:
 
-- objetivos do TCC
-- metodologia do trabalho
-- estrutura acadêmica exigida pela universidade
+- problema de pesquisa;
+- hipótese;
+- objetivo geral;
+- objetivos específicos;
+- metodologia;
+- modelo oficial de TCC da universidade;
+- estrutura do relatório;
+- evidências de teste e validação.
 
-A implementação deve permitir gerar evidências para capítulos como:
+A implementação deve gerar material suficiente para capítulos como:
 
-- metodologia
-- arquitetura do sistema
-- experimentos
-- resultados.
+- revisão bibliográfica;
+- tecnologias utilizadas;
+- planejamento do programa;
+- arquitetura da solução;
+- funcionamento da aplicação;
+- testes e resultados;
+- limitações;
+- trabalhos futuros.
 
-O projeto deve manter alinhamento com o modelo acadêmico de relatório. :contentReference[oaicite:7]{index=7}
+A escrita acadêmica deve ser impessoal, clara, referenciada e coerente com a implementação real.
 
 ---
 
-# 12. Objetivo Final do Projeto
+# 18. Checklist Obrigatório Antes de Finalizar Tarefa
+
+Antes de considerar qualquer tarefa concluída, confirmar:
+
+- [ ] Apenas o que foi solicitado foi alterado.
+- [ ] Nenhuma funcionalidade existente foi modificada sem necessidade.
+- [ ] Nenhuma refatoração fora do escopo foi feita.
+- [ ] O fluxo completo continua funcionando.
+- [ ] Os contratos JSON permanecem compatíveis.
+- [ ] O backend continua compatível com o aplicativo mobile.
+- [ ] O aplicativo continua apto para execução em dispositivos Android.
+- [ ] Não foram adicionadas dependências desnecessárias.
+- [ ] A arquitetura existente foi preservada.
+- [ ] O endpoint `POST /analises` foi preservado, salvo solicitação explícita.
+- [ ] O campo multipart `imagem` foi preservado, salvo solicitação explícita.
+- [ ] A explicação amigável continua sendo retornada.
+- [ ] A documentação não foi atualizada antes da implementação.
+- [ ] Após finalizar a implementação, a documentação impactada foi sincronizada com o código.
+
+---
+
+# 19. Objetivo Final do Projeto
 
 Este projeto não visa apenas criar um software funcional.
 
-Ele também deve:
+Ele deve também:
 
-- demonstrar aplicação prática de técnicas de computação
-- produzir resultados analisáveis
-- gerar evidências científicas
-- sustentar um relatório acadêmico consistente
+- demonstrar aplicação prática de técnicas de computação;
+- produzir resultados analisáveis;
+- gerar evidências científicas;
+- sustentar um relatório acadêmico consistente;
+- apresentar uma solução compreensível para usuários comuns;
+- manter escopo viável para um TCC de graduação.
 
-Portanto, agentes devem considerar **tanto a engenharia de software quanto a coerência científica do projeto**.
+Portanto, agentes devem considerar simultaneamente engenharia de software, experiência do usuário, viabilidade técnica e coerência acadêmica.

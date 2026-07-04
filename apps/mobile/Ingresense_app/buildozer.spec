@@ -18,7 +18,7 @@ source.include_patterns = assets/*,assets/images/*,layouts/*.kv,config/*.py,scre
 version = 1.0.0
 
 # Dependências Python
-requirements = python3,kivy==2.3.0,requests,certifi,charset-normalizer,idna,urllib3,plyer,pillow
+requirements = python3,kivy==2.3.0,requests,certifi,charset-normalizer,idna,urllib3,plyer,pillow,pyjnius
 
 # python-for-android fixado para evitar builds com Python alvo mais novo
 # que o Kivy 2.3.0 ainda nao compila corretamente.
