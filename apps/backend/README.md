@@ -1,36 +1,87 @@
 # Backend - Food Label Analyzer
 
-API FastAPI para analisar rotulos de alimentos a partir de imagem.
+API FastAPI responsável por receber imagens de rótulos alimentícios, extrair texto por OCR, acionar o motor de classificação e retornar uma explicação amigável sobre indícios de ultraprocessamento.
 
-Fluxo atual:
-1. Upload da imagem
-2. OCR (Google Vision)
-3. Pre-processamento do texto
-4. Classificacao rule-based
-5. Retorno com justificativa
+---
 
-Status:
-- Rule-based ativo
-- Sem persistencia em banco
-- Sem endpoint de health check (apenas `/docs` para validacao rapida)
+## Fluxo Atual
+
+1. Recebe upload da imagem pelo endpoint `POST /analises`.
+2. Valida o arquivo enviado no campo `imagem`.
+3. Envia a imagem para OCR com Google Vision API.
+4. Recebe o texto extraído do rótulo.
+5. Aciona o pipeline de classificação em `packages/classification_core`.
+6. Aplica pré-processamento textual.
+7. Executa classificação baseada em regras heurísticas.
+8. Executa Random Forest como módulo experimental, quando disponível.
+9. Gera explicação amigável.
+10. Retorna JSON expandido para o aplicativo mobile.
+
+---
+
+## Status
+
+- Backend FastAPI funcional.
+- Endpoint principal: `POST /analises`.
+- Campo de upload: `imagem`.
+- OCR integrado com Google Vision API.
+- Classificação rule-based ativa como decisão principal.
+- Random Forest mantido como recurso experimental/acadêmico.
+- Sem persistência em banco.
+- Sem autenticação.
+- Sem endpoint dedicado de health check; usar `/docs` para validação rápida.
+
+---
 
 ## Estrutura
-- `app/main.py`: inicializacao da API e middlewares.
-- `app/api/v1/analises.py`: endpoint `POST /analises`.
-- `app/services/analysis_pipeline.py`: orquestracao do fluxo.
-- `app/services/ocr.py`: integracao Google Vision.
-- `app/models/schemas.py`: contratos de entrada/saida.
-- `tests/`: testes unitarios e de endpoint.
 
-## Endpoint
-`POST /analises`
+```text
+apps/backend/
+  app/
+    main.py
+    api/
+      v1/
+        analises.py
+    models/
+      schemas.py
+    services/
+      analysis_pipeline.py
+      ocr.py
+  tests/
+```
+
+Principais arquivos:
+
+- `app/main.py`: inicialização da API e middlewares.
+- `app/api/v1/analises.py`: endpoint `POST /analises`.
+- `app/services/analysis_pipeline.py`: orquestração do fluxo OCR → classificação → resposta.
+- `app/services/ocr.py`: integração com Google Vision API.
+- `app/models/schemas.py`: contratos de entrada/saída.
+- `tests/`: testes unitários e de endpoint.
+
+---
+
+## Endpoint Principal
+
+```http
+POST /analises
+Content-Type: multipart/form-data
+```
 
 Entrada:
-- `multipart/form-data`
-- Campo `imagem`
-- Tipos aceitos: `image/*` e extensoes `.jpg`, `.jpeg`, `.png`, `.bmp`, `.webp`
 
-Resposta (200):
+- campo obrigatório: `imagem`;
+- formato: arquivo de imagem;
+- tipos aceitos: `image/*` e extensões `.jpg`, `.jpeg`, `.png`, `.bmp`, `.webp`.
+
+> O campo `imagem` faz parte do contrato com o aplicativo mobile. Não renomear sem atualizar o app junto.
+
+---
+
+## Resposta de Sucesso
+
+Exemplo de resposta `200`:
+
 ```json
 {
   "analiseId": "1a2b3c4d-5678-90ab-cdef-123456789000",
@@ -38,136 +89,287 @@ Resposta (200):
   "classificacao": {
     "categoria": "ultraprocessado",
     "status": "ALTO_INDICIO",
-    "justificativa": "Foram identificados ingredientes associados a ultraprocessamento, como aromatizante, corante."
+    "justificativa": "Foram identificados ingredientes associados a ultraprocessamento.",
+    "novaGrupo": 4,
+    "titulo": "Alto indício de ultraprocessamento",
+    "resumo": "Foram encontrados ingredientes associados a alimentos ultraprocessados.",
+    "orientacao": "Considere comparar este produto com opções com menor lista de ingredientes.",
+    "evidencias": [
+      {
+        "termo": "aromatizante",
+        "tipo": "aditivo",
+        "descricao": "Ingrediente frequentemente associado a produtos ultraprocessados."
+      }
+    ],
+    "ingredientesDetectados": [
+      "aromatizante",
+      "corante"
+    ],
+    "aviso": "Esta análise possui caráter informativo e não substitui avaliação profissional."
   }
 }
 ```
 
-Erros esperados:
-- `400`: arquivo invalido ou vazio
-- `422`: OCR sem texto extraido
-- `502`: falha de autenticacao/servico OCR
-- `504`: timeout no OCR
+Campos principais consumidos pelo app:
 
-## Configuracao de Ambiente
-Leitura em `app/core/config.py`.
+- `classificacao.categoria`;
+- `classificacao.status`;
+- `classificacao.justificativa`;
+- `classificacao.novaGrupo`;
+- `classificacao.titulo`;
+- `classificacao.resumo`;
+- `classificacao.orientacao`;
+- `classificacao.evidencias`;
+- `classificacao.ingredientesDetectados`;
+- `classificacao.aviso`.
+
+---
+
+## Erros Esperados
+
+- `400`: arquivo inválido ou vazio.
+- `422`: OCR sem texto extraído.
+- `502`: falha de autenticação/serviço OCR.
+- `504`: timeout no OCR.
+
+O tratamento de erro deve preservar mensagens compatíveis com o aplicativo mobile.
+
+---
+
+## Papel do Random Forest
+
+O Random Forest é experimental.
+
+Ele pode ser utilizado para:
+
+- comparação acadêmica;
+- geração de métricas;
+- análise no relatório;
+- apoio à validação do motor.
+
+A classificação oficial retornada ao usuário é baseada no motor de regras heurísticas.
+
+Não transformar o Random Forest na fonte principal da decisão final sem decisão explícita do grupo.
+
+---
+
+## Configuração de Ambiente
+
+A leitura de configurações ocorre em `app/core/config.py`.
 
 Prioridade do `.env`:
-1. `APP_ENV` definido -> `.env.{APP_ENV}`
-2. `.env.local` (se existir)
-3. `.env.production` (se existir)
-4. fallback -> `.env.local`
 
-Variaveis principais:
-- `APP_ENV`
-- `DEBUG`
-- `GOOGLE_APPLICATION_CREDENTIALS`
-- `GOOGLE_CREDENTIALS_JSON` (JSON direto ou Base64)
-- `GOOGLE_VISION_TIMEOUT_SECONDS`
+1. `APP_ENV` definido → `.env.{APP_ENV}`;
+2. `.env.local`, se existir;
+3. `.env.production`, se existir;
+4. fallback → `.env.local`.
+
+Variáveis principais:
+
+- `APP_ENV`;
+- `DEBUG`;
+- `GOOGLE_APPLICATION_CREDENTIALS`;
+- `GOOGLE_CREDENTIALS_JSON`;
+- `GOOGLE_VISION_TIMEOUT_SECONDS`.
 
 Templates versionados:
-- `.env.local.template`
-- `.env.production.template`
 
-Arquivos sensiveis (ignorados no Git):
-- `.env.local`
-- `.env.production`
-- `google-credentials.json`
+- `.env.local.template`;
+- `.env.production.template`.
+
+Arquivos sensíveis ignorados no Git:
+
+- `.env.local`;
+- `.env.production`;
+- `google-credentials.json`.
+
+---
 
 ## Credenciais Google Vision
-A API suporta 2 formas:
 
-1. Arquivo local (desenvolvimento)
-- No `.env.local`, usar:
+A API suporta duas formas de autenticação.
+
+### 1. Arquivo local para desenvolvimento
+
+No `.env.local`:
+
 ```env
 GOOGLE_APPLICATION_CREDENTIALS=./google-credentials.json
 ```
-- Salvar `google-credentials.json` dentro de `apps/backend/`
 
-2. Variavel de ambiente (producao)
-- Usar `GOOGLE_CREDENTIALS_JSON` com:
-1. JSON direto, ou
-2. JSON em Base64
+Salvar `google-credentials.json` dentro de `apps/backend/`.
 
-Exemplo Base64 (PowerShell):
+### 2. Variável de ambiente para produção
+
+Usar `GOOGLE_CREDENTIALS_JSON` com:
+
+1. JSON direto; ou
+2. JSON em Base64.
+
+Exemplo Base64 no PowerShell:
+
 ```powershell
 $content = Get-Content apps/backend/google-credentials.json -Raw
 [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($content))
 ```
 
 Importante:
-- Nunca commitar credenciais reais
-- Nunca commitar `.env.local`/`.env.production` com segredos
 
-## Como rodar local
-1. Instalar dependencias
+- nunca commitar credenciais reais;
+- nunca commitar `.env.local` ou `.env.production` com segredos.
+
+---
+
+## Como Rodar Localmente
+
+### 1. Instalar dependências
+
+A partir da raiz do repositório:
+
 ```bash
 pip install -r apps/requirements.txt
 ```
 
-2. Criar `.env.local`
+### 2. Criar `.env.local`
+
+PowerShell:
+
 ```powershell
 .\setup-env.ps1
 ```
-ou
+
+Bash:
+
 ```bash
 ./setup-env.sh
 ```
 
-3. Ajustar credenciais no `apps/backend/.env.local`
+### 3. Ajustar credenciais
 
-4. Subir API
+Editar:
 
-Opcao A (a partir da raiz do repositorio):
+```text
+apps/backend/.env.local
+```
+
+### 4. Subir API
+
+Opção A, a partir da raiz do repositório:
+
 ```bash
 python -m uvicorn app.main:app --app-dir apps/backend --host localhost --port 8000
 ```
 
-Opcao B (entrando no modulo backend):
+Opção B, entrando no módulo backend:
+
 ```bash
 cd apps/backend
 python -m uvicorn app.main:app --host localhost --port 8000
 ```
 
-5. Validar
-- Swagger: `http://localhost:8000/docs`
+### 5. Validar
+
+Abrir:
+
+```text
+http://localhost:8000/docs
+```
+
+---
 
 ## Deploy no Render
-Este repositorio ja possui `render.yaml` na raiz.
 
-Configuracao atual do service:
-- Runtime: Python 3.12
-- Build: `pip install --upgrade pip setuptools wheel && pip install -r apps/requirements.txt`
-- Start: `cd apps/backend && python -m uvicorn app.main:app --host 0.0.0.0 --port 8000`
+Este repositório possui `render.yaml` na raiz.
+
+Configuração atual do serviço:
+
+- Runtime: Python 3.12.
+- Build: `pip install --upgrade pip setuptools wheel && pip install -r apps/requirements.txt`.
+- Start: `cd apps/backend && python -m uvicorn app.main:app --host 0.0.0.0 --port 8000`.
 
 Passo a passo:
-1. Conectar o repo no Render como `Web Service`
-2. Confirmar que o `render.yaml` foi detectado
-3. Em `Environment`, adicionar `GOOGLE_CREDENTIALS_JSON` (JSON ou Base64)
-4. Fazer deploy
 
-Validacao pos-deploy:
-- Abrir `<sua-url>.onrender.com/docs`
-- Testar `POST /analises` via Swagger
+1. Conectar o repositório no Render como `Web Service`.
+2. Confirmar que o `render.yaml` foi detectado.
+3. Em `Environment`, adicionar `GOOGLE_CREDENTIALS_JSON`.
+4. Fazer deploy.
 
-## Troubleshooting rapido
-Build falhou:
-- Verificar `apps/requirements.txt`
-- Verificar logs de build no Render
+Validação pós-deploy:
 
-Aplicacao nao sobe no Render:
-- Verificar se `GOOGLE_CREDENTIALS_JSON` foi configurada corretamente
-- Verificar logs do servico
+- abrir `<sua-url>.onrender.com/docs`;
+- testar `POST /analises` via Swagger;
+- testar também pelo app mobile quando possível.
+
+---
+
+## Compatibilidade com Mobile Android
+
+Qualquer alteração no backend deve considerar o aplicativo Kivy rodando no celular.
+
+Preservar:
+
+- endpoint `POST /analises`;
+- campo multipart `imagem`;
+- formato do JSON de resposta;
+- campos usados pela tela de resultado;
+- mensagens de erro compatíveis com o app;
+- comportamento esperado em ambiente Render.
+
+Não considerar uma alteração segura apenas porque a API roda localmente. O fluxo completo precisa continuar viável no Android:
+
+```text
+Mobile Android → Backend → OCR → Classificação → JSON → Mobile Android
+```
+
+---
+
+## Troubleshooting Rápido
+
+Build falhou no Render:
+
+- verificar `apps/requirements.txt`;
+- verificar logs de build no Render.
+
+Aplicação não sobe no Render:
+
+- verificar se `GOOGLE_CREDENTIALS_JSON` foi configurada corretamente;
+- verificar logs do serviço.
 
 Erro `ModuleNotFoundError: No module named 'app'` ao subir local:
-- Causa: comando executado fora de `apps/backend`
-- Correcao: usar `--app-dir apps/backend` no comando do uvicorn, ou executar o comando dentro de `apps/backend`
 
-Erro de autenticacao OCR:
-- Revisar permissao da Service Account
-- Confirmar Vision API habilitada no projeto Google Cloud
+- causa: comando executado fora de `apps/backend` sem `--app-dir`;
+- correção: usar `--app-dir apps/backend` ou executar dentro de `apps/backend`.
 
-## Observacoes de escopo (TCC)
-- Foco atual: identificar indicios de ultraprocessamento por ingredientes
-- Expansoes (gluten/lactose/veg) ficam para trabalhos futuros
-- Priorizar simplicidade, modularidade e explicabilidade
+Erro de autenticação OCR:
+
+- revisar permissão da Service Account;
+- confirmar Vision API habilitada no projeto Google Cloud;
+- validar se a credencial foi lida corretamente.
+
+---
+
+## Observações de Escopo do TCC
+
+Foco atual:
+
+- identificar indícios de ultraprocessamento por ingredientes;
+- apresentar resposta explicável;
+- validar com exemplos reais.
+
+Ficam para trabalhos futuros:
+
+- glúten;
+- lactose;
+- classificação vegana/vegetariana;
+- recomendações nutricionais;
+- histórico de análises;
+- login;
+- banco de dados.
+
+---
+
+## Regra de Atualização Documental
+
+Atualizações em documentação devem ocorrer apenas depois que a implementação correspondente estiver concluída e validada.
+
+Ao alterar backend, verificar também se README raiz, ARCHITECTURE.md, AGENTS.md e README do mobile precisam ser sincronizados.
