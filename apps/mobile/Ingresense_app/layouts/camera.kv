@@ -1,16 +1,75 @@
 #:kivy 2.0
 #:import utils kivy.utils
-
-# A CameraScreen não tem UI própria —
-# ela abre a câmera nativa do dispositivo via plyer (on_enter em camera.py)
-# e redireciona para PreviewScreen após a captura.
+#:import dp kivy.metrics.dp
 
 <CameraScreen>:
     FloatLayout:
-
-        # Mensagem enquanto câmera nativa carrega
-        Label:
-            text: "Abrindo câmera..."
-            font_size: "15sp"
-            color: utils.get_color_from_hex("#FF6B00")
+        Camera:
+            id: camera_preview
+            play: root.camera_active
+            resolution: (1280, 720)
+            size_hint: 1, 1
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            allow_stretch: True
+            keep_ratio: True
+
+        Label:
+            text: root.status_text
+            font_size: "15sp"
+            bold: True
+            color: 1, 1, 1, 1
+            size_hint: 1, None
+            height: "44dp"
+            pos_hint: {"center_x": 0.5, "top": 0.96}
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 0.45
+                RoundedRectangle:
+                    pos: self.x + dp(24), self.y
+                    size: self.width - dp(48), self.height
+                    radius: [dp(10)]
+
+        BoxLayout:
+            orientation: "horizontal"
+            spacing: "12dp"
+            padding: "24dp", "16dp"
+            size_hint: 1, None
+            height: "96dp"
+            pos_hint: {"center_x": 0.5, "y": 0}
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 0.42
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            Button:
+                text: "Cancelar"
+                font_size: "16sp"
+                bold: True
+                color: 1, 1, 1, 1
+                size_hint_x: 0.38
+                background_color: 0, 0, 0, 0
+                on_release: root.cancelar()
+                canvas.before:
+                    Color:
+                        rgba: utils.get_color_from_hex("#68615B") if self.state == "down" else utils.get_color_from_hex("#80766E")
+                    RoundedRectangle:
+                        pos: self.x, self.y - (dp(2) if self.state == "down" else 0)
+                        size: self.size
+                        radius: [dp(18)]
+
+            Button:
+                text: "Capturar"
+                font_size: "17sp"
+                bold: True
+                color: 1, 1, 1, 1
+                background_color: 0, 0, 0, 0
+                on_release: root.capturar_foto()
+                canvas.before:
+                    Color:
+                        rgba: utils.get_color_from_hex("#E85F00") if self.state == "down" else utils.get_color_from_hex("#FF6B00")
+                    RoundedRectangle:
+                        pos: self.x, self.y - (dp(2) if self.state == "down" else 0)
+                        size: self.size
+                        radius: [dp(18)]
