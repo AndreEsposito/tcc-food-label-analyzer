@@ -38,6 +38,8 @@ apps/mobile/Ingresense_app/
 │
 ├── main.py                    # Ponto de entrada da aplicação
 ├── buildozer.spec             # Configuração de build Android
+├── p4a_hooks.py               # Ajustes do Manifest gerado pelo python-for-android
+├── android_src/               # Classe Android usada pela camera nativa
 │
 ├── config/
 │   └── settings.py            # URL da API
@@ -45,7 +47,7 @@ apps/mobile/Ingresense_app/
 ├── screens/                   # Lógica de cada tela
 │   ├── splash.py              # Tela inicial animada
 │   ├── home.py                # Menu principal
-│   ├── camera.py              # Captura via câmera ou galeria
+│   ├── camera.py              # Captura via camera nativa Android
 │   ├── preview.py             # Prévia e confirmação da imagem
 │   └── result.py              # Resultado: loading / erro / sucesso
 │

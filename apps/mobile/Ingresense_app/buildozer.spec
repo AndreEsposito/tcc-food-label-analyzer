@@ -24,6 +24,9 @@ requirements = python3,kivy==2.3.0,requests,certifi,charset-normalizer,idna,urll
 # que o Kivy 2.3.0 ainda nao compila corretamente.
 p4a.branch = v2024.01.21
 
+# Hook que registra o provider usado pela camera nativa Android.
+p4a.hook = p4a_hooks.py
+
 # Orientação da tela
 orientation = portrait
 
@@ -55,6 +58,9 @@ android.accept_sdk_license = True
 # Manter comentado enquanto nao houver dependencias Android nativas; uma chave
 # vazia gera "implementation ''" e quebra o assembleDebug.
 # android.gradle_dependencies =
+
+# Classe Android propria para entregar a foto capturada via content://.
+android.add_src = android_src
 
 # Log level do Buildozer (0=erro, 1=info, 2=debug)
 log_level = 2
