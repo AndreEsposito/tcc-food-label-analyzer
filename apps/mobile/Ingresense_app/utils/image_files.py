@@ -131,23 +131,13 @@ def _normalize_with_android_bitmap(source, output_path):
     BitmapFactory = autoclass("android.graphics.BitmapFactory")
     CompressFormat = autoclass("android.graphics.Bitmap$CompressFormat")
     FileOutputStream = autoclass("java.io.FileOutputStream")
-    PythonActivity = autoclass("org.kivy.android.PythonActivity")
-    Uri = autoclass("android.net.Uri")
 
     bitmap = None
-    input_stream = None
 
     try:
-        if source.startswith("content://"):
-            resolver = PythonActivity.mActivity.getContentResolver()
-            input_stream = resolver.openInputStream(Uri.parse(source))
-            if input_stream is None:
-                raise FileNotFoundError(f"Nao foi possivel abrir URI Android: {source}")
-            bitmap = BitmapFactory.decodeStream(input_stream)
-        else:
-            path = _path_from_file_uri(source) if source.startswith("file://") else source
-            path = unquote(path)
-            bitmap = BitmapFactory.decodeFile(path)
+        path = _resolve_to_local_file(source)
+        orientation = _get_android_exif_orientation(path)
+        bitmap = BitmapFactory.decodeFile(path)
 
         if bitmap is None:
             raise ValueError(f"Android nao conseguiu decodificar a imagem: {source}")
@@ -169,6 +159,8 @@ def _normalize_with_android_bitmap(source, output_path):
             bitmap.recycle()
             bitmap = scaled_bitmap
 
+        bitmap = _apply_android_exif_orientation(bitmap, orientation)
+
         output_stream = FileOutputStream(output_path)
         try:
             compressed = bitmap.compress(CompressFormat.JPEG, 92, output_stream)
@@ -182,7 +174,64 @@ def _normalize_with_android_bitmap(source, output_path):
         print(f"[image_files] Android bitmap normalized image: {output_path}")
         return output_path
     finally:
-        if input_stream is not None:
-            input_stream.close()
         if bitmap is not None:
             bitmap.recycle()
+
+
+def _get_android_exif_orientation(path):
+    try:
+        from jnius import autoclass
+
+        ExifInterface = autoclass("android.media.ExifInterface")
+        exif = ExifInterface(path)
+        return exif.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL,
+        )
+    except Exception as exc:
+        print(f"[image_files] Could not read Android EXIF orientation: {exc}")
+        return 1
+
+
+def _apply_android_exif_orientation(bitmap, orientation):
+    from jnius import autoclass
+
+    Bitmap = autoclass("android.graphics.Bitmap")
+    ExifInterface = autoclass("android.media.ExifInterface")
+    Matrix = autoclass("android.graphics.Matrix")
+
+    matrix = Matrix()
+
+    if orientation == ExifInterface.ORIENTATION_ROTATE_90:
+        matrix.postRotate(90)
+    elif orientation == ExifInterface.ORIENTATION_ROTATE_180:
+        matrix.postRotate(180)
+    elif orientation == ExifInterface.ORIENTATION_ROTATE_270:
+        matrix.postRotate(270)
+    elif orientation == ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+        matrix.postScale(-1, 1)
+    elif orientation == ExifInterface.ORIENTATION_FLIP_VERTICAL:
+        matrix.postScale(1, -1)
+    elif orientation == ExifInterface.ORIENTATION_TRANSPOSE:
+        matrix.postRotate(90)
+        matrix.postScale(-1, 1)
+    elif orientation == ExifInterface.ORIENTATION_TRANSVERSE:
+        matrix.postRotate(270)
+        matrix.postScale(-1, 1)
+    else:
+        return bitmap
+
+    rotated_bitmap = Bitmap.createBitmap(
+        bitmap,
+        0,
+        0,
+        bitmap.getWidth(),
+        bitmap.getHeight(),
+        matrix,
+        True,
+    )
+
+    if rotated_bitmap != bitmap:
+        bitmap.recycle()
+
+    return rotated_bitmap
