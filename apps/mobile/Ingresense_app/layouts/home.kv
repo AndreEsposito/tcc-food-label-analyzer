@@ -5,13 +5,43 @@
 
     FloatLayout:
 
-        # Logo no canto superior direito
-        Image:
-            source: "assets/images/logo.png"
+        BoxLayout:
+            orientation: "vertical"
+            spacing: "8dp"
             size_hint: None, None
-            size: "72dp", "72dp"
-            pos_hint: {"right": 0.97, "top": 0.97}
-            fit_mode: "contain"
+            width: min(root.width - dp(64), dp(520))
+            height: self.minimum_height
+            pos_hint: {"center_x": 0.5, "center_y": 0.64}
+
+            Image:
+                source: "assets/images/logo.png"
+                size_hint: None, None
+                size: "112dp", "112dp"
+                pos_hint: {"center_x": 0.5}
+                fit_mode: "contain"
+
+            Label:
+                text: "Rótulo [color=#FF6B00]Inteligente[/color]"
+                markup: True
+                font_size: "34sp"
+                bold: True
+                color: utils.get_color_from_hex("#3F3F3F")
+                size_hint_y: None
+                height: self.texture_size[1]
+                text_size: self.width, None
+                halign: "center"
+                valign: "middle"
+
+            Label:
+                text: "Entenda o que você consome.\nFaça escolhas mais conscientes."
+                font_size: "17sp"
+                color: utils.get_color_from_hex("#4A4A4A")
+                line_height: 1.18
+                size_hint_y: None
+                height: self.texture_size[1]
+                text_size: self.width, None
+                halign: "center"
+                valign: "middle"
 
         # Botões centralizados na parte inferior
         BoxLayout:
