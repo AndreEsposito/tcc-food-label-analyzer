@@ -71,6 +71,7 @@ class CameraScreen(BaseScreen):
             from jnius import autoclass, cast
 
             Intent = autoclass("android.content.Intent")
+            ClipData = autoclass("android.content.ClipData")
             MediaStore = autoclass("android.provider.MediaStore")
             ContentValues = autoclass("android.content.ContentValues")
             Environment = autoclass("android.os.Environment")
@@ -92,7 +93,6 @@ class CameraScreen(BaseScreen):
                     MediaStore.Images.Media.RELATIVE_PATH,
                     str(Environment.DIRECTORY_PICTURES) + "/IngreSense",
                 )
-                values.put(MediaStore.Images.Media.IS_PENDING, 1)
 
             uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
             if uri is None:
@@ -104,12 +104,16 @@ class CameraScreen(BaseScreen):
             intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             parcelable_uri = cast("android.os.Parcelable", uri)
             intent.putExtra(MediaStore.EXTRA_OUTPUT, parcelable_uri)
+            intent.setClipData(ClipData.newUri(resolver, "rotulo", uri))
             uri_permission_flags = (
                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 | Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
             intent.addFlags(uri_permission_flags)
             self._grant_uri_to_camera_apps(intent, uri, uri_permission_flags)
+
+            if intent.resolveActivity(activity.getPackageManager()) is None:
+                raise RuntimeError("Nenhum app de camera disponivel para atender a captura.")
 
             android.activity.unbind(on_activity_result=self._on_android_activity_result)
             android.activity.bind(on_activity_result=self._on_android_activity_result)
@@ -144,37 +148,13 @@ class CameraScreen(BaseScreen):
 
     def _finalizar_captura_android(self):
         try:
-            self._marcar_captura_android_concluida()
             preview_path = prepare_image_for_app(self._pending_capture_uri_text)
-            self._limpar_captura_android_pendente()
+            self._liberar_uri_android_pendente()
             Clock.schedule_once(lambda dt: self._abrir_preview(preview_path), 0)
         except Exception as e:
             print(f"[CameraScreen] Erro ao preparar foto capturada no Android: {e}")
             self._limpar_captura_android_pendente()
             Clock.schedule_once(lambda dt: self._voltar_para_home(), 0)
-
-    def _marcar_captura_android_concluida(self):
-        try:
-            from jnius import autoclass
-
-            Build = autoclass("android.os.Build")
-            if Build.VERSION.SDK_INT < 29:
-                return
-
-            ContentValues = autoclass("android.content.ContentValues")
-            MediaStore = autoclass("android.provider.MediaStore")
-            PythonActivity = autoclass("org.kivy.android.PythonActivity")
-
-            values = ContentValues()
-            values.put(MediaStore.Images.Media.IS_PENDING, 0)
-            PythonActivity.mActivity.getContentResolver().update(
-                self._pending_capture_uri,
-                values,
-                None,
-                None,
-            )
-        except Exception as e:
-            print(f"[CameraScreen] Erro ao finalizar entrada MediaStore: {e}")
 
     def _limpar_captura_android_pendente(self):
         uri = getattr(self, "_pending_capture_uri", None)
@@ -193,6 +173,26 @@ class CameraScreen(BaseScreen):
                 activity.getContentResolver().delete(uri, None, None)
             except Exception as e:
                 print(f"[CameraScreen] Erro ao remover captura temporaria: {e}")
+
+        self._pending_capture_uri = None
+        self._pending_capture_uri_text = ""
+        self._capture_in_progress = False
+
+    def _liberar_uri_android_pendente(self):
+        uri = getattr(self, "_pending_capture_uri", None)
+        if uri is not None:
+            try:
+                from jnius import autoclass
+
+                Intent = autoclass("android.content.Intent")
+                PythonActivity = autoclass("org.kivy.android.PythonActivity")
+                PythonActivity.mActivity.revokeUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    | Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
+            except Exception as e:
+                print(f"[CameraScreen] Erro ao liberar permissao da URI: {e}")
 
         self._pending_capture_uri = None
         self._pending_capture_uri_text = ""
