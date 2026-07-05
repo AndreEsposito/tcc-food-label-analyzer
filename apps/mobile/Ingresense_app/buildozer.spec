@@ -35,7 +35,7 @@ fullscreen = 0
 
 # Ícone e splash (coloque os arquivos em assets/images/ e ajuste os caminhos)
 # icon.filename = %(source.dir)s/assets/images/icon.png
-# presplash.filename = %(source.dir)s/assets/images/presplash.png
+presplash.filename = %(source.dir)s/assets/images/splash_screen.png
 
 # Cor do presplash (enquanto o app carrega)
 android.presplash_color = #F0EEEA
