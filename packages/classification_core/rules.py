@@ -29,6 +29,7 @@ MARCADORES_GRUPO_4: dict[str, tuple[str, str]] = {
     "gordura interesterificada": ("gordura modificada", "Gordura rearranjada por processo industrial."),
     "amido modificado": ("ingrediente industrial", "Amido alterado para modificar textura ou estabilidade."),
     "proteina hidrolisada": ("ingrediente industrial", "Proteína processada por hidrólise para uso na formulação."),
+    "proteina lactea": ("ingrediente industrial", "Fração proteica adicionada para uso em formulações industriais."),
     "extrato de levedura": ("realçador de sabor", "Ingrediente usado para intensificar características de sabor."),
     "isolado proteico": ("ingrediente industrial", "Fração proteica isolada por processamento industrial."),
     "caseinato": ("ingrediente industrial", "Derivado proteico do leite usado em formulações industriais."),
@@ -111,8 +112,7 @@ def validar_lista_ingredientes(texto: str) -> dict:
 
     texto_total = preprocessar(texto)
     apenas_nutricional = (
-        not tem_cabecalho
-        and sum(termo in texto_total for termo in _TERMOS_NUTRICIONAIS) >= 2
+        sum(termo in texto_total for termo in _TERMOS_NUTRICIONAIS) >= 2
         and not _contem_termo_controlado(normalizado)
     )
     if apenas_nutricional:
@@ -124,7 +124,10 @@ def validar_lista_ingredientes(texto: str) -> dict:
     # Sem o cabeçalho, um único termo reconhecido pode ser apenas o nome na
     # frente da embalagem (por exemplo, "açúcar refinado" ou "sal"). Nessa
     # situação não há evidência suficiente de que o OCR capturou a composição.
-    lista_valida = bool(reconhecidos or tem_marcador) and estrutura
+    lista_valida = (
+        (tem_cabecalho and bool(componentes))
+        or (bool(reconhecidos or tem_marcador) and estrutura)
+    )
     if not lista_valida:
         return _validacao(False, trecho, componentes, "texto_insuficiente")
     return _validacao(True, trecho, componentes, None)
@@ -219,9 +222,9 @@ def classificar_regras(texto: str) -> dict:
     if resultado:
         return resultado
     return {
-        "score": 0, "classificacao": "pouco processado", "nova_grupo": None,
-        "status_analise": "NAO_CLASSIFICADO", "motivo": "inconclusivo",
-        "ingredientes_detectados": [], "evidencias": [],
+        "score": 0, "classificacao": "indeterminado", "nova_grupo": None,
+        "status_analise": "CLASSIFICADO", "motivo": "grupo_indeterminado",
+        "ingredientes_detectados": list(dict.fromkeys(componentes)), "evidencias": [],
     }
 
 

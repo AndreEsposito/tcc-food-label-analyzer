@@ -24,6 +24,7 @@ _ROTULOS_TERMOS = {
     "oleo de soja": "óleo de soja",
     "agua": "água",
     "proteina hidrolisada": "proteína hidrolisada",
+    "proteina lactea": "proteína láctea",
     "solidos de xarope": "sólidos de xarope",
 }
 _TIPOS_POR_TERMO = {
@@ -87,6 +88,8 @@ def gerar_explicacao_amigavel(
     motivo_nao_classificacao: str | None = None,
     evidencias: list[dict] | None = None,
 ) -> dict:
+    if motivo_nao_classificacao == "grupo_indeterminado" and ingredientes_detectados:
+        return _gerar_grupo_indeterminado(ingredientes_detectados, score)
     if motivo_nao_classificacao:
         return _gerar_nao_classificado(motivo_nao_classificacao, score)
 
@@ -150,6 +153,47 @@ def _gerar_nao_classificado(motivo: str, score: int | None) -> dict:
         "novaGrupo": None, "titulo": titulo, "resumo": resumo,
         "justificativa": justificativa, "orientacao": orientacao,
         "evidencias": [], "ingredientesDetectados": [], "aviso": aviso,
+        "score": score,
+    }
+
+
+def _gerar_grupo_indeterminado(
+    ingredientes_detectados: list[str],
+    score: int | None,
+) -> dict:
+    ingredientes = list(dict.fromkeys(
+        _rotulo_termo(item) for item in ingredientes_detectados if item
+    ))
+    termos = formatar_lista_termos(ingredientes)
+    evidencias = [
+        {
+            "termo": ingrediente,
+            "tipo": "ingrediente identificado",
+            "descricao": (
+                "Identificado na lista, mas sem evidência suficiente para definir "
+                "com segurança o grupo NOVA."
+            ),
+        }
+        for ingrediente in ingredientes
+    ]
+    return {
+        "novaGrupo": None,
+        "titulo": "Grupo NOVA não determinado",
+        "resumo": (
+            "Os ingredientes foram identificados, mas as regras não permitem "
+            "determinar o grupo NOVA com segurança."
+        ),
+        "justificativa": (
+            f"Foram identificados {termos}, porém não há evidência suficiente "
+            "para atribuir os grupos NOVA 2, 3 ou 4."
+        ),
+        "orientacao": (
+            "Considere a lista apresentada como apoio informativo e compare o "
+            "produto com alternativas de composição mais simples."
+        ),
+        "evidencias": evidencias,
+        "ingredientesDetectados": ingredientes,
+        "aviso": AVISO_INFORMATIVO,
         "score": score,
     }
 

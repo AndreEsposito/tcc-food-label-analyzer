@@ -99,6 +99,18 @@ def test_analysis_pipeline_returns_not_classified_when_ocr_has_no_text():
     assert result.classificacao.evidencias == []
 
 
+def test_analysis_pipeline_returns_normal_result_when_group_is_unknown():
+    result = AnalysisPipeline(
+        ocr_service=StubOCR("Ingredientes: cacau, canela.")
+    ).run(image_bytes=b"img")
+
+    assert result.status.value == "CLASSIFICADO"
+    assert result.classificacao.novaGrupo is None
+    assert result.classificacao.titulo == "Grupo NOVA não determinado"
+    assert result.classificacao.ingredientesDetectados == ["cacau", "canela"]
+    assert result.classificacao.evidencias
+
+
 @pytest.mark.parametrize("texto", [
     "açúcar refinado",
     "sal refinado",
@@ -118,6 +130,7 @@ def test_analysis_pipeline_does_not_classify_front_label_as_ingredient_list(text
         ("Ingredientes: açúcar refinado.", 2, "BAIXO_INDICIO"),
         ("Ingredientes: atum, água e sal.", 3, "MEDIO_INDICIO"),
         ("Ingredientes: água, açúcar, corante e aromatizante.", 4, "ALTO_INDICIO"),
+        ("Ingredientes: leite integral, proteínas lácteas e fermento lácteo.", 4, "ALTO_INDICIO"),
     ],
 )
 def test_analysis_pipeline_maps_nova_groups_without_changing_contract(texto, grupo, status):

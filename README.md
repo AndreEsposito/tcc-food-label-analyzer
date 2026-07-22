@@ -32,7 +32,7 @@ Fluxo principal:
 - Campo de upload: `imagem`.
 - OCR integrado com Google Vision API.
 - Classificação rule-based ativa como decisão principal.
-- Regras determinísticas para grupos NOVA 2, 3 e 4, com resultado inconclusivo quando não há evidência suficiente.
+- Regras determinísticas para grupos NOVA 2, 3 e 4, com `NOVA ?` quando os ingredientes são identificados sem evidência suficiente para definir o grupo.
 - Random Forest mantido como abordagem experimental.
 - Resposta amigável expandida para o app mobile.
 - App mobile desenvolvido com Python + Kivy.
@@ -160,9 +160,9 @@ Para setup completo, credenciais, variáveis de ambiente, execução local e dep
 
 - [apps/backend/README.md](apps/backend/README.md)
 
-Quando o OCR não identifica uma lista suficiente ou as regras não permitem conclusão segura, a API mantém o mesmo JSON, retorna `status: "NAO_CLASSIFICADO"` e `classificacao.novaGrupo: null`. O aplicativo trata esse retorno como orientação para nova captura, sem exibir um grupo NOVA incorreto.
+Quando o OCR não identifica ingredientes, a API mantém o mesmo JSON, retorna `status: "NAO_CLASSIFICADO"` e `classificacao.novaGrupo: null`; o aplicativo orienta uma nova captura. Quando há ingredientes identificados, mas nenhuma regra permite definir o grupo com segurança, a API retorna `status: "CLASSIFICADO"`, preserva `classificacao.novaGrupo: null` e o aplicativo apresenta o resultado como `NOVA ?`, junto dos itens encontrados.
 
-O aplicativo também exige que o backend envie explicitamente `novaGrupo` como 2, 3 ou 4. Respostas legadas com grupo 1 ou sem esse campo são exibidas como inconclusivas, pois o status de indício isolado não comprova um grupo NOVA.
+O aplicativo só exibe um grupo numérico quando o backend envia explicitamente `novaGrupo` como 2, 3 ou 4. Respostas sem grupo que contenham ingredientes identificados são exibidas como `NOVA ?`; respostas sem grupo e sem ingredientes permanecem no fluxo de nova tentativa.
 
 ---
 

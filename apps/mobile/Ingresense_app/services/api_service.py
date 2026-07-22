@@ -18,7 +18,7 @@ def enviar_imagem(caminho_imagem: str) -> dict:
 
     Retorno em caso de sucesso:
     {
-        "nova_grupo": int (1–4) ou None quando a análise for inconclusiva,
+        "nova_grupo": int (2–4) ou None quando a análise for inconclusiva,
         "classificacao": str,
         "justificativa": str,
         "ingredientes_detectados": [str, ...]
@@ -160,6 +160,12 @@ def _normalizar_resposta(dados: dict) -> dict:
         _, label = _status_para_nova(status, categoria)
         titulo = classificacao.get("titulo") or label
 
+        ingredientes_detectados = classificacao.get("ingredientesDetectados", [])
+        resumo = classificacao.get("resumo", "")
+        lista_identificada = bool(ingredientes_detectados) or _indica_lista_identificada(
+            titulo,
+            resumo,
+        )
         nova_grupo_backend = classificacao.get("novaGrupo")
         if nova_grupo_backend in {2, 3, 4}:
             nova_grupo_resposta = nova_grupo_backend
@@ -168,21 +174,26 @@ def _normalizar_resposta(dados: dict) -> dict:
             # Respostas legadas com grupo 1 ou sem novaGrupo são inconclusivas,
             # evitando transformar uma análise antiga genérica em NOVA 2.
             nova_grupo_resposta = None
-            if status_analise != "NAO_CLASSIFICADO":
+            if lista_identificada:
+                titulo = "Grupo NOVA não determinado"
+            elif status_analise != "NAO_CLASSIFICADO":
                 titulo = "Classificação inconclusiva"
         resultado = {
             "nova_grupo": nova_grupo_resposta,
             "classificacao": titulo,
             "titulo": titulo,
-            "resumo": classificacao.get("resumo", ""),
+            "resumo": resumo,
             "justificativa": classificacao.get("justificativa", ""),
             "orientacao": classificacao.get("orientacao", ""),
             "evidencias": classificacao.get("evidencias", []),
-            "ingredientes_detectados": classificacao.get("ingredientesDetectados", []),
+            "ingredientes_detectados": ingredientes_detectados,
             "aviso": classificacao.get("aviso", ""),
         }
-        if status_analise == "NAO_CLASSIFICADO" or nova_grupo_resposta is None:
+        grupo_indeterminado = nova_grupo_resposta is None and lista_identificada
+        if nova_grupo_resposta is None and not grupo_indeterminado:
             resultado["nao_classificado"] = True
+        elif grupo_indeterminado:
+            resultado["grupo_indeterminado"] = True
         return resultado
     except Exception:
         return {"erro": "Resposta inesperada do servidor."}
@@ -205,6 +216,15 @@ def _status_para_nova(status: str, categoria: str) -> tuple[int | None, str]:
     # A categoria pública permanece "ultraprocessado" em todos os grupos e,
     # portanto, não sustenta inferência de NOVA quando o status é desconhecido.
     return None, "Classificação inconclusiva"
+
+
+def _indica_lista_identificada(titulo: str, resumo: str) -> bool:
+    texto = f"{titulo} {resumo}".lower()
+    return (
+        "lista de ingredientes foi identificada" in texto
+        or "ingredientes foram identificados" in texto
+        or "ingredientes identificados" in texto
+    )
 
 
 # ──────────────────────────────────────────────────────────────────────────────

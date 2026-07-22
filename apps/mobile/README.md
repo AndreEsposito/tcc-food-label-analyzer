@@ -194,9 +194,11 @@ Campos relevantes para a tela:
 - `classificacao.ingredientesDetectados`;
 - `classificacao.aviso`.
 
-Quando `status` for `NAO_CLASSIFICADO` e `classificacao.novaGrupo` for `null`, o app apresenta o título, o resumo e a orientação recebidos em estado de nova tentativa. O valor nulo não é convertido para nenhum grupo NOVA.
+Quando `status` for `NAO_CLASSIFICADO` e `classificacao.novaGrupo` for `null`, o app apresenta o título, o resumo e a orientação recebidos em estado de nova tentativa. Quando `status` for `CLASSIFICADO`, o grupo for nulo e houver ingredientes identificados, o app apresenta a tela normal de resultado com o selo `NOVA ?`.
 
-O valor do grupo precisa ser explicitamente 2, 3 ou 4. Contratos legados com `novaGrupo: 1` ou sem grupo não são inferidos a partir de `BAIXO_INDICIO`, `MEDIO_INDICIO` ou `ALTO_INDICIO`; o app os apresenta como inconclusivos.
+Durante a transição de versões, o normalizador também reconhece respostas antigas que usam `NAO_CLASSIFICADO`, mas afirmam no título ou resumo que a lista de ingredientes foi identificada. Esses retornos são exibidos como `NOVA ?` em vez de erro; a publicação do backend atualizado continua necessária para que a API devolva a lista completa em `ingredientesDetectados`.
+
+O valor numérico do grupo precisa ser explicitamente 2, 3 ou 4. Contratos legados com `novaGrupo: 1` ou sem grupo não são inferidos a partir de `BAIXO_INDICIO`, `MEDIO_INDICIO` ou `ALTO_INDICIO`; havendo ingredientes, o app usa `NOVA ?`, e sem ingredientes mantém o fluxo de nova tentativa.
 
 Mapeamento conceitual:
 

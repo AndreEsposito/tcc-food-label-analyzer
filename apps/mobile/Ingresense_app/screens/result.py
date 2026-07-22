@@ -13,18 +13,6 @@ LOADING_TEXTS = [
 ]
 
 NOVA_CONFIG = {
-    1: {
-        "cor": (0.20, 0.70, 0.35, 1),
-        "progresso": 0.15,
-        "label": "Baixo processamento",
-        "descricao": (
-            "Alimentos in natura ou minimamente processados. "
-            "São a base de uma alimentação saudável: frutas, legumes, "
-            "carnes, ovos, leite, grãos e cereais."
-        ),
-        "dica": "Pode consumir à vontade. Prefira estes alimentos no dia a dia.",
-        "dica_icone": "🟢",
-    },
     2: {
         "cor": (0.60, 0.80, 0.20, 1),
         "progresso": 0.38,
@@ -63,6 +51,18 @@ NOVA_CONFIG = {
         ),
         "dica_icone": "🔴",
     },
+}
+
+NOVA_INDETERMINADA_CONFIG = {
+    "cor": (0.45, 0.48, 0.52, 1),
+    "progresso": 0.0,
+    "label": "Grupo NOVA não determinado",
+    "descricao": (
+        "A lista de ingredientes foi identificada, mas não há evidência suficiente "
+        "para definir com segurança o grupo NOVA."
+    ),
+    "dica": "Use os ingredientes identificados como apoio e compare produtos semelhantes.",
+    "dica_icone": "?",
 }
 
 NUM_DOTS     = 4
@@ -226,18 +226,23 @@ class ResultScreen(BaseScreen):
         except (TypeError, ValueError):
             grupo = None
 
-        if grupo not in NOVA_CONFIG:
+        grupo_indeterminado = grupo is None and resultado.get("grupo_indeterminado")
+        if grupo not in NOVA_CONFIG and not grupo_indeterminado:
             self.erro_titulo = "Classificação inconclusiva"
             self.erro_detalhe = "Não foi possível determinar com segurança o grupo NOVA. Tente novamente com uma foto mais nítida."
             self.state = "error"
             Clock.schedule_once(lambda dt: self._atualizar_visibilidade_estado(), 0.05)
             return
 
-        config = NOVA_CONFIG[grupo]
+        config = (
+            NOVA_INDETERMINADA_CONFIG
+            if grupo_indeterminado
+            else NOVA_CONFIG[grupo]
+        )
 
         self.nova_cor        = list(config["cor"])
         self.nova_progresso  = config["progresso"]
-        self.nova_grupo_texto = f"NOVA\n{grupo}"
+        self.nova_grupo_texto = "NOVA\n?" if grupo_indeterminado else f"NOVA\n{grupo}"
         self.classificacao   = resultado.get("titulo") or resultado.get(
             "classificacao",
             config["label"],

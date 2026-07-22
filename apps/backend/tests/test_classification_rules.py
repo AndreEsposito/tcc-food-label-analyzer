@@ -7,6 +7,7 @@ from packages.classification_core.pipeline import classificar
 @pytest.mark.parametrize("texto", [
     "", "   ... ---   ",
     "INFORMAÇÃO NUTRICIONAL\nPorção 30 g\nValor energético 120 kcal\nCarboidratos 20 g\nSódio 30 mg",
+    "Ingredientes: informação nutricional, porção 30 g, valor energético 120 kcal.",
     "Marca Boa Vida. O melhor sabor para sua família.",
 ])
 def test_texto_sem_lista_suficiente_nao_e_classificado(texto):
@@ -43,15 +44,17 @@ def test_identifica_variantes_de_grupo_2_presentes_no_dataset(texto):
 
 def test_creme_de_leite_sem_contexto_de_manteiga_permanece_inconclusivo():
     resultado = classificar("Ingredientes: creme de leite pasteurizado e sal.")
-    assert resultado["status_analise"] == "NAO_CLASSIFICADO"
+    assert resultado["status_analise"] == "CLASSIFICADO"
     assert resultado["nova_grupo"] is None
+    assert resultado["ingredientes_detectados"] == ["creme de leite pasteurizado", "sal"]
 
 
 def test_manteiga_negada_no_rotulo_nao_ativa_regra_contextual():
     resultado = classificar(
         "Creme culinário não contém manteiga. Ingredientes: creme de leite pasteurizado e sal."
     )
-    assert resultado["status_analise"] == "NAO_CLASSIFICADO"
+    assert resultado["status_analise"] == "CLASSIFICADO"
+    assert resultado["nova_grupo"] is None
 
 
 def test_composicao_com_acucar_e_aromatizante_nao_vira_grupo_2():
@@ -113,8 +116,9 @@ def test_recupera_grupo_3_quando_ocr_remove_pontuacao(texto):
 
 def test_recuperacao_sem_pontuacao_rejeita_palavra_nao_controlada():
     resultado = classificar("atum ingrediente desconhecido agua e sal")
-    assert resultado["status_analise"] == "NAO_CLASSIFICADO"
+    assert resultado["status_analise"] == "CLASSIFICADO"
     assert resultado["nova_grupo"] is None
+    assert resultado["ingredientes_detectados"]
 
 
 @pytest.mark.parametrize("texto", [
@@ -124,8 +128,9 @@ def test_recuperacao_sem_pontuacao_rejeita_palavra_nao_controlada():
 ])
 def test_iogurte_natural_simples_nao_e_promovido_ao_grupo_3(texto):
     resultado = classificar(texto)
-    assert resultado["status_analise"] == "NAO_CLASSIFICADO"
+    assert resultado["status_analise"] == "CLASSIFICADO"
     assert resultado["nova_grupo"] is None
+    assert resultado["ingredientes_detectados"]
 
 
 @pytest.mark.parametrize("texto, marcador", [
@@ -137,6 +142,7 @@ def test_iogurte_natural_simples_nao_e_promovido_ao_grupo_3(texto):
     ("água, açúcar, INS 150D", "ins 150d"),
     ("proteína hidrolisada; óleo; sal", "proteina hidrolisada"),
     ("proteínas hidrolisadas; óleos vegetais; sal", "proteina hidrolisada"),
+    ("leite integral, leite em pó desnatado, proteínas lácteas e fermento lácteo", "proteina lactea"),
     ("água, açúcar e aroma artificial", "aroma artificial"),
     ("água, açúcar e aromas artificiais", "aroma artificial"),
     ("água, acessulfame-K", "acesulfame de potassio"),
@@ -154,14 +160,23 @@ def test_marcador_forte_prevalece_e_identifica_grupo_4(texto, marcador):
 
 def test_lista_valida_mas_ambigua_fica_inconclusiva():
     resultado = classificar("Ingredientes: farinha de trigo, cacau.")
-    assert resultado["status_analise"] == "NAO_CLASSIFICADO"
+    assert resultado["status_analise"] == "CLASSIFICADO"
     assert resultado["nova_grupo"] is None
-    assert resultado["explicacao_amigavel"]["titulo"] == "Classificação inconclusiva"
+    assert resultado["ingredientes_detectados"] == ["farinha de trigo", "cacau"]
+    assert resultado["explicacao_amigavel"]["titulo"] == "Grupo NOVA não determinado"
+
+
+def test_lista_com_ingredientes_desconhecidos_retorna_resultado_sem_grupo():
+    resultado = classificar("Ingredientes: cacau, canela.")
+    assert resultado["status_analise"] == "CLASSIFICADO"
+    assert resultado["nova_grupo"] is None
+    assert resultado["ingredientes_detectados"] == ["cacau", "canela"]
+    assert resultado["explicacao_amigavel"]["evidencias"]
 
 
 def test_auxiliar_moderado_isolado_nao_define_grupo_3():
     resultado = classificar("Ingredientes: conservante, estabilizante.")
-    assert resultado["status_analise"] == "NAO_CLASSIFICADO"
+    assert resultado["status_analise"] == "CLASSIFICADO"
     assert resultado["nova_grupo"] is None
 
 

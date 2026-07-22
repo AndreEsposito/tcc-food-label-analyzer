@@ -52,6 +52,18 @@ def test_gera_explicacao_para_resultado_inconclusivo():
     assert resultado["evidencias"] == []
 
 
+def test_gera_resultado_normal_quando_ingredientes_nao_definem_grupo():
+    resultado = gerar_explicacao_amigavel(
+        nova_grupo=None,
+        ingredientes_detectados=["cacau", "canela"],
+        motivo_nao_classificacao="grupo_indeterminado",
+    )
+    assert resultado["novaGrupo"] is None
+    assert resultado["titulo"] == "Grupo NOVA não determinado"
+    assert resultado["ingredientesDetectados"] == ["cacau", "canela"]
+    assert all(item["tipo"] == "ingrediente identificado" for item in resultado["evidencias"])
+
+
 def test_gera_explicacao_com_lista_vazia_de_evidencias():
     resultado = gerar_explicacao_amigavel(
         classificacao="ultraprocessado",

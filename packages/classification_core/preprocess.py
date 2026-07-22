@@ -15,6 +15,7 @@ _SINONIMOS_NORMALIZADOS = {
     r"\baromas artificiais\b": "aroma artificial",
     r"\baromas identicos aos naturais\b": "aroma identico ao natural",
     r"\bproteinas hidrolisadas\b": "proteina hidrolisada",
+    r"\bproteinas lacteas\b": "proteina lactea",
     r"\bisolados proteicos\b": "isolado proteico",
     r"\boleos vegetais\b": "oleo vegetal",
     r"\bgorduras culinarias\b": "gordura culinaria",

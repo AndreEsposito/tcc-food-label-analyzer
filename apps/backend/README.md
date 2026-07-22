@@ -26,7 +26,7 @@ API FastAPI responsável por receber imagens de rótulos alimentícios, extrair 
 - Campo de upload: `imagem`.
 - OCR integrado com Google Vision API.
 - Classificação rule-based ativa como decisão principal.
-- Classificação determinística dos grupos NOVA 2, 3 e 4 e retorno inconclusivo conservador.
+- Classificação determinística dos grupos NOVA 2, 3 e 4 e retorno com grupo indeterminado quando os ingredientes não sustentam uma decisão segura.
 - Random Forest mantido como recurso experimental/acadêmico.
 - Sem persistência em banco.
 - Sem autenticação.
@@ -124,11 +124,11 @@ Campos principais consumidos pelo app:
 - `classificacao.ingredientesDetectados`;
 - `classificacao.aviso`.
 
-O campo externo `status` pode ser `CLASSIFICADO` ou `NAO_CLASSIFICADO`. No segundo caso, `classificacao.novaGrupo` é `null`, sem remoção ou renomeação dos demais campos.
+O campo externo `status` pode ser `CLASSIFICADO` ou `NAO_CLASSIFICADO`. `NAO_CLASSIFICADO` é reservado à ausência de ingredientes utilizáveis. Quando ingredientes são identificados sem grupo seguro, o status é `CLASSIFICADO` e `classificacao.novaGrupo` permanece `null`, sem remoção ou renomeação dos demais campos.
 
 `classificacao.novaGrupo` aceita apenas os grupos 2, 3 e 4, ou `null`. O valor legado 1 é rejeitado pelo schema. Após alterações nesse contrato, o serviço no Render precisa ser redeployado; o OpenAPI publicado deve deixar de apresentar `default: 1`.
 
-As regras dos grupos 2 e 3 usam vocabulário fechado e padrões de composição. Foram validadas contra os produtos da aba `Dataset_Produtos`: açúcar/sacarose, sal e azeites são tratados como grupo 2; conservas, queijos simples, geleias e preparações baseadas em alimento com ingredientes culinários são tratadas como grupo 3. Leite fermentado simples permanece inconclusivo, e manteiga feita de creme de leite exige que o texto OCR também identifique explicitamente o produto como manteiga.
+As regras dos grupos 2 e 3 usam vocabulário fechado e padrões de composição. Foram validadas contra os produtos da aba `Dataset_Produtos`: açúcar/sacarose, sal e azeites são tratados como grupo 2; conservas, queijos simples, geleias e preparações baseadas em alimento com ingredientes culinários são tratadas como grupo 3. `Proteínas lácteas` é normalizado como marcador forte do grupo 4. Leite fermentado simples retorna grupo indeterminado, e manteiga feita de creme de leite exige que o texto OCR também identifique explicitamente o produto como manteiga.
 
 Listas do grupo 3 continuam reconhecíveis quando o OCR perde vírgulas ou quebras de linha. Nesse caso, o backend recompõe os ingredientes apenas por frases do vocabulário controlado e rejeita a recuperação se houver palavras desconhecidas, sem alterar o contrato da API.
 
@@ -138,7 +138,8 @@ Sem o cabeçalho `Ingredientes:`, um termo controlado isolado não sustenta clas
 
 ## Erros Esperados
 
-- `200` com `status = "NAO_CLASSIFICADO"`: OCR sem texto útil, lista insuficiente ou classificação inconclusiva.
+- `200` com `status = "NAO_CLASSIFICADO"`: OCR sem ingredientes utilizáveis.
+- `200` com `status = "CLASSIFICADO"` e `novaGrupo = null`: ingredientes identificados, mas sem grupo NOVA seguro.
 - `400`: arquivo inválido ou vazio.
 - `422`: reservado para uma falha de ausência de texto propagada por uma implementação alternativa do pipeline.
 - `502`: falha de autenticação/serviço OCR.

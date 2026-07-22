@@ -250,13 +250,13 @@ A ordem determinística é:
 2. identificar grupo 2 por famílias culinárias fechadas e auxiliares permitidos;
 3. identificar grupo 4 por marcadores fortes de formulação;
 4. identificar grupo 3 por alimento-base reconhecível combinado com ingredientes culinários;
-5. retornar resultado inconclusivo quando nenhuma regra for sustentada.
+5. retornar `NOVA ?` com os ingredientes detectados quando nenhuma regra de grupo for sustentada.
 
-Resultados inválidos ou inconclusivos preservam a resposta existente com `status = "NAO_CLASSIFICADO"`, `novaGrupo = null`, evidências vazias e orientação amigável. Os grupos 2, 3 e 4 mapeiam, respectivamente, para `BAIXO_INDICIO`, `MEDIO_INDICIO` e `ALTO_INDICIO`.
+Resultados sem ingredientes preservam a resposta existente com `status = "NAO_CLASSIFICADO"`, `novaGrupo = null`, evidências vazias e orientação para nova captura. Quando a lista contém ingredientes, mas nenhuma regra define o grupo com segurança, o resultado usa `status = "CLASSIFICADO"`, mantém `novaGrupo = null`, devolve os ingredientes como itens identificados e é apresentado no mobile como `NOVA ?`. Os grupos 2, 3 e 4 mapeiam, respectivamente, para `BAIXO_INDICIO`, `MEDIO_INDICIO` e `ALTO_INDICIO`.
 
 Na ausência do cabeçalho de ingredientes, um único termo controlado não é considerado uma lista suficiente: ele pode ser apenas o nome ou um destaque da frente da embalagem. Assim, textos isolados como `açúcar refinado`, `sal` ou `aromatizante` permanecem inconclusivos; listas de um ingrediente continuam classificáveis quando o OCR captura o cabeçalho `Ingredientes:`.
 
-O vocabulário controlado dos grupos 2 e 3 cobre sinônimos e composições observados no dataset acadêmico, incluindo sacarose de cana, azeites refinado/virgem, queijos com quimosina, geleias com pectina e suco de limão, vegetais acidificados, pescados e leguminosas com temperos culinários. Contextos ambíguos permanecem inconclusivos: creme de leite só sustenta manteiga do grupo 2 quando o texto completo identifica explicitamente o produto, e leite fermentado simples não é suficiente para grupo 3.
+O vocabulário controlado dos grupos 2 e 3 cobre sinônimos e composições observados no dataset acadêmico, incluindo sacarose de cana, azeites refinado/virgem, queijos com quimosina, geleias com pectina e suco de limão, vegetais acidificados, pescados e leguminosas com temperos culinários. Entre os marcadores fortes do grupo 4, a normalização também reconhece `proteínas lácteas` como `proteina lactea`, evitando o falso resultado indeterminado observado no produto P011. Contextos ambíguos preservam os ingredientes e retornam `NOVA ?`: creme de leite só sustenta manteiga do grupo 2 quando o texto completo identifica explicitamente o produto, e leite fermentado simples não é suficiente para grupo 3.
 
 Quando o OCR remove pontuação e quebras de linha, o motor tenta recuperar os componentes do grupo 3 com uma segmentação gulosa pelo termo controlado mais longo. A recuperação não ignora conteúdo desconhecido: se restar qualquer palavra fora do vocabulário, a composição não é classificada por essa estratégia. Isso preserva o caráter conservador sem depender obrigatoriamente das vírgulas do rótulo.
 

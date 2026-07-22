@@ -117,7 +117,7 @@ def test_status_desconhecido_nao_e_convertido_em_grupo_1_ou_4():
     assert resultado["nao_classificado"] is True
 
 
-def test_normalizar_resposta_nao_classificada_preserva_nova_nulo():
+def test_resposta_antiga_com_lista_identificada_vira_nova_indeterminada():
     resultado = _normalizar_resposta(
         {
             "status": "NAO_CLASSIFICADO",
@@ -126,7 +126,7 @@ def test_normalizar_resposta_nao_classificada_preserva_nova_nulo():
                 "status": "BAIXO_INDICIO",
                 "novaGrupo": None,
                 "titulo": "Classificação inconclusiva",
-                "resumo": "Lista identificada, mas insuficiente.",
+                "resumo": "A lista de ingredientes foi identificada, mas não apresentou informações suficientes para determinar o grupo NOVA.",
                 "orientacao": "Fotografe novamente.",
                 "evidencias": [],
                 "ingredientesDetectados": [],
@@ -134,8 +134,57 @@ def test_normalizar_resposta_nao_classificada_preserva_nova_nulo():
         }
     )
     assert resultado["nova_grupo"] is None
+    assert resultado["grupo_indeterminado"] is True
+    assert "nao_classificado" not in resultado
+    assert resultado["titulo"] == "Grupo NOVA não determinado"
+
+
+def test_resposta_sem_ingredientes_continua_nao_classificada():
+    resultado = _normalizar_resposta(
+        {
+            "status": "NAO_CLASSIFICADO",
+            "classificacao": {
+                "categoria": "ultraprocessado",
+                "status": "BAIXO_INDICIO",
+                "novaGrupo": None,
+                "titulo": "Não foi possível classificar o produto",
+                "resumo": "A imagem não apresentou ingredientes identificáveis.",
+                "ingredientesDetectados": [],
+            },
+        }
+    )
+    assert resultado["nova_grupo"] is None
     assert resultado["nao_classificado"] is True
-    assert resultado["titulo"] == "Classificação inconclusiva"
+    assert "grupo_indeterminado" not in resultado
+
+
+def test_normalizar_resultado_com_ingredientes_e_grupo_nulo_sem_erro():
+    resultado = _normalizar_resposta(
+        {
+            "status": "CLASSIFICADO",
+            "classificacao": {
+                "categoria": "ultraprocessado",
+                "status": "BAIXO_INDICIO",
+                "novaGrupo": None,
+                "titulo": "Grupo NOVA não determinado",
+                "resumo": "Ingredientes identificados sem grupo seguro.",
+                "justificativa": "Foram identificados cacau e canela.",
+                "orientacao": "Compare produtos semelhantes.",
+                "evidencias": [
+                    {
+                        "termo": "cacau",
+                        "tipo": "ingrediente identificado",
+                        "descricao": "Sem evidência suficiente para definir o grupo.",
+                    }
+                ],
+                "ingredientesDetectados": ["cacau", "canela"],
+            },
+        }
+    )
+    assert resultado["nova_grupo"] is None
+    assert resultado["grupo_indeterminado"] is True
+    assert "nao_classificado" not in resultado
+    assert resultado["titulo"] == "Grupo NOVA não determinado"
 
 
 def test_erro_por_codigo_preserva_codigo_http_real():
