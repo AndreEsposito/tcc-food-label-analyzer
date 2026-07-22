@@ -32,6 +32,7 @@ Fluxo principal:
 - Campo de upload: `imagem`.
 - OCR integrado com Google Vision API.
 - Classificação rule-based ativa como decisão principal.
+- Regras determinísticas para grupos NOVA 2, 3 e 4, com resultado inconclusivo quando não há evidência suficiente.
 - Random Forest mantido como abordagem experimental.
 - Resposta amigável expandida para o app mobile.
 - App mobile desenvolvido com Python + Kivy.
@@ -158,6 +159,10 @@ Resposta esperada, em formato resumido:
 Para setup completo, credenciais, variáveis de ambiente, execução local e deploy, consulte:
 
 - [apps/backend/README.md](apps/backend/README.md)
+
+Quando o OCR não identifica uma lista suficiente ou as regras não permitem conclusão segura, a API mantém o mesmo JSON, retorna `status: "NAO_CLASSIFICADO"` e `classificacao.novaGrupo: null`. O aplicativo trata esse retorno como orientação para nova captura, sem exibir um grupo NOVA incorreto.
+
+O aplicativo também exige que o backend envie explicitamente `novaGrupo` como 2, 3 ou 4. Respostas legadas com grupo 1 ou sem esse campo são exibidas como inconclusivas, pois o status de indício isolado não comprova um grupo NOVA.
 
 ---
 

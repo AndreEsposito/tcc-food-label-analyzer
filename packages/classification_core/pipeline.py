@@ -10,7 +10,7 @@ def classificar(texto: str) -> dict:
     texto_processado = preprocessar(texto)
     features = extrair_features(texto_processado)
 
-    resultado_regras = classificar_regras(features)
+    resultado_regras = classificar_regras(texto)
     resultado_ia = classificar_ml(features)
 
     explicacao = gerar_explicacao(
@@ -21,6 +21,9 @@ def classificar(texto: str) -> dict:
         classificacao=resultado_regras["classificacao"],
         ingredientes_detectados=resultado_regras["ingredientes_detectados"],
         score=resultado_regras["score"],
+        nova_grupo=resultado_regras["nova_grupo"],
+        motivo_nao_classificacao=resultado_regras["motivo"],
+        evidencias=resultado_regras["evidencias"],
     )
 
     return {
@@ -30,6 +33,8 @@ def classificar(texto: str) -> dict:
         "regras": resultado_regras,
         "ia": resultado_ia,
         "classificacao_final": resultado_regras["classificacao"],
+        "status_analise": resultado_regras["status_analise"],
+        "nova_grupo": resultado_regras["nova_grupo"],
         "explicacao": explicacao,
         "explicacao_amigavel": explicacao_amigavel,
         "evidencias": explicacao_amigavel["evidencias"],

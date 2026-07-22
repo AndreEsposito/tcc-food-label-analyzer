@@ -49,7 +49,7 @@ def test_normalizar_resposta_com_contrato_novo():
     assert resultado["aviso"] == "Resultado informativo."
 
 
-def test_normalizar_resposta_com_contrato_antigo():
+def test_contrato_antigo_sem_grupo_explicito_fica_inconclusivo():
     resultado = _normalizar_resposta(
         {
             "classificacao": {
@@ -60,15 +60,82 @@ def test_normalizar_resposta_com_contrato_antigo():
         }
     )
 
-    assert resultado["nova_grupo"] == 3
-    assert resultado["classificacao"] == "Alimento processado"
-    assert resultado["titulo"] == "Alimento processado"
+    assert resultado["nova_grupo"] is None
+    assert resultado["nao_classificado"] is True
+    assert resultado["classificacao"] == "Classificação inconclusiva"
+    assert resultado["titulo"] == "Classificação inconclusiva"
     assert resultado["justificativa"] == "Texto antigo."
     assert resultado["resumo"] == ""
     assert resultado["orientacao"] == ""
     assert resultado["evidencias"] == []
     assert resultado["ingredientes_detectados"] == []
     assert resultado["aviso"] == ""
+
+
+def test_contrato_antigo_com_nova_1_fica_inconclusivo():
+    resultado = _normalizar_resposta(
+        {
+            "status": "CLASSIFICADO",
+            "classificacao": {
+                "categoria": "ultraprocessado",
+                "status": "BAIXO_INDICIO",
+                "novaGrupo": 1,
+                "justificativa": "Resposta produzida pelo backend antigo.",
+            },
+        }
+    )
+    assert resultado["nova_grupo"] is None
+    assert resultado["nao_classificado"] is True
+
+
+def test_contrato_antigo_sem_nova_grupo_fica_inconclusivo():
+    resultado = _normalizar_resposta(
+        {
+            "status": "CLASSIFICADO",
+            "classificacao": {
+                "categoria": "ultraprocessado",
+                "status": "BAIXO_INDICIO",
+            },
+        }
+    )
+    assert resultado["nova_grupo"] is None
+    assert resultado["nao_classificado"] is True
+
+
+def test_status_desconhecido_nao_e_convertido_em_grupo_1_ou_4():
+    resultado = _normalizar_resposta(
+        {
+            "status": "CLASSIFICADO",
+            "classificacao": {
+                "categoria": "ultraprocessado",
+                "status": "DESCONHECIDO",
+                "novaGrupo": 1,
+            },
+        }
+    )
+    assert resultado["nova_grupo"] is None
+    assert resultado["nao_classificado"] is True
+
+
+def test_normalizar_resposta_nao_classificada_preserva_nova_nulo():
+    resultado = _normalizar_resposta(
+        {
+            "status": "NAO_CLASSIFICADO",
+            "classificacao": {
+                "categoria": "ultraprocessado",
+                "status": "BAIXO_INDICIO",
+                "novaGrupo": None,
+                "titulo": "Classificação inconclusiva",
+                "resumo": "Lista identificada, mas insuficiente.",
+                "orientacao": "Fotografe novamente.",
+                "evidencias": [],
+                "ingredientesDetectados": [],
+            },
+        }
+    )
+    assert resultado["nova_grupo"] is None
+    assert resultado["nao_classificado"] is True
+    assert resultado["titulo"] == "Classificação inconclusiva"
 
 
 def test_erro_por_codigo_preserva_codigo_http_real():

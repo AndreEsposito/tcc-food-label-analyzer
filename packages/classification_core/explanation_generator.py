@@ -8,107 +8,73 @@ _STATUS_POR_CLASSIFICACAO = {
     "processado": "MEDIO_INDICIO",
     "pouco processado": "BAIXO_INDICIO",
 }
-
 _NOVA_POR_STATUS = {
     "ALTO_INDICIO": 4,
     "MEDIO_INDICIO": 3,
-    "BAIXO_INDICIO": 1,
+    "BAIXO_INDICIO": 2,
 }
-
 _ROTULOS_TERMOS = {
     "glutamato monossodico": "glutamato monossódico",
     "aroma identico ao natural": "aroma idêntico ao natural",
     "acesulfame de potassio": "acesulfame de potássio",
-    "benzoato de sodio": "benzoato de sódio",
-    "sorbato de potassio": "sorbato de potássio",
+    "acucar": "açúcar",
+    "acucar refinado": "açúcar refinado",
+    "acucar invertido": "açúcar invertido",
+    "oleo": "óleo",
+    "oleo de soja": "óleo de soja",
+    "agua": "água",
+    "proteina hidrolisada": "proteína hidrolisada",
+    "solidos de xarope": "sólidos de xarope",
 }
-
 _TIPOS_POR_TERMO = {
-    "corante": "corante",
-    "caramelo iv": "corante",
-    "ins 150d": "corante",
-    "aromatizante": "aromatizante",
-    "aroma artificial": "aromatizante",
+    "corante": "corante", "caramelo iv": "corante", "ins 150d": "corante",
+    "aromatizante": "aromatizante", "aroma artificial": "aromatizante",
     "aroma identico ao natural": "aromatizante",
-    "glutamato monossodico": "realçador de sabor",
-    "realcador de sabor": "realçador de sabor",
-    "maltodextrina": "ingrediente industrial",
-    "xarope de glicose": "ingrediente industrial",
-    "xarope de milho": "ingrediente industrial",
-    "edulcorante": "edulcorante",
-    "aspartame": "edulcorante",
-    "sucralose": "edulcorante",
-    "acesulfame de potassio": "edulcorante",
-    "ciclamato": "edulcorante",
-    "sacarina": "edulcorante",
-    "gordura vegetal hidrogenada": "gordura vegetal",
-    "extrato de levedura": "ingrediente industrial",
-    "conservante": "conservante",
-    "benzoato de sodio": "conservante",
-    "sorbato de potassio": "conservante",
-    "emulsificante": "emulsificante",
-    "estabilizante": "estabilizante",
-    "espessante": "espessante",
-    "acidulante": "acidulante",
-    "antiumectante": "antiumectante",
-    "antioxidante": "antioxidante",
+    "glutamato monossodico": "realçador de sabor", "realcador de sabor": "realçador de sabor",
+    "maltodextrina": "ingrediente industrial", "xarope de glicose": "ingrediente industrial",
+    "xarope de milho": "ingrediente industrial", "edulcorante": "edulcorante",
+    "aspartame": "edulcorante", "sucralose": "edulcorante",
+    "acesulfame de potassio": "edulcorante", "ciclamato": "edulcorante",
+    "sacarina": "edulcorante", "gordura vegetal hidrogenada": "gordura modificada",
+    "extrato de levedura": "realçador de sabor",
 }
-
 _DESCRICOES_POR_TIPO = {
     "aromatizante": "Pode indicar uso de substâncias para alterar ou intensificar o sabor.",
     "corante": "Pode indicar uso de substâncias para alterar a aparência do produto.",
-    "conservante": "Pode indicar uso de substâncias para aumentar a durabilidade do alimento.",
-    "emulsificante": "Pode indicar uso de aditivos para modificar textura e mistura dos ingredientes.",
-    "edulcorante": "Pode indicar uso de substâncias para adoçar o produto sem usar açúcar comum.",
-    "estabilizante": "Pode indicar uso de aditivos para manter textura, aparência ou consistência.",
-    "espessante": "Pode indicar uso de aditivos para alterar a textura ou o corpo do produto.",
-    "acidulante": "Pode indicar uso de aditivos para ajustar sabor ou acidez.",
-    "antiumectante": "Pode indicar uso de aditivos para reduzir umidade e evitar aglomeração.",
-    "antioxidante": "Pode indicar uso de aditivos para retardar alterações no alimento.",
-    "realçador de sabor": "Pode indicar uso de substâncias para intensificar o sabor do produto.",
-    "gordura vegetal": "Ingrediente comum em formulações industriais, especialmente quando hidrogenada.",
-    "ingrediente industrial": (
-        "Ingrediente frequentemente utilizado em formulações industriais para alterar "
-        "textura, corpo ou composição do produto."
-    ),
+    "edulcorante": "Pode indicar uso de substâncias para adoçar o produto.",
+    "realçador de sabor": "Pode indicar uso de substâncias para intensificar o sabor.",
+    "gordura modificada": "Gordura modificada por processo industrial.",
+    "ingrediente industrial": "Ingrediente frequente em formulações industriais.",
 }
 
 
 def formatar_lista_termos(termos: list[str]) -> str:
     termos_validos = [termo for termo in termos if termo]
-
     if not termos_validos:
         return ""
     if len(termos_validos) == 1:
         return termos_validos[0]
     if len(termos_validos) == 2:
         return f"{termos_validos[0]} e {termos_validos[1]}"
-
     return f"{', '.join(termos_validos[:-1])} e {termos_validos[-1]}"
 
 
 def gerar_evidencias(ingredientes_detectados: list[str] | None) -> list[dict]:
     evidencias = []
-    termos_visitados = set()
-
+    vistos = set()
     for termo in ingredientes_detectados or []:
-        termo_normalizado = (termo or "").strip().lower()
-        if not termo_normalizado or termo_normalizado in termos_visitados:
+        normalizado = (termo or "").strip().lower()
+        if not normalizado or normalizado in vistos:
             continue
-
-        termos_visitados.add(termo_normalizado)
-        tipo = _TIPOS_POR_TERMO.get(termo_normalizado, "ingrediente relevante")
-        evidencias.append(
-            {
-                "termo": _rotulo_termo(termo_normalizado),
-                "tipo": tipo,
-                "descricao": _DESCRICOES_POR_TIPO.get(
-                    tipo,
-                    "Ingrediente que pode contribuir para a avaliação do grau de processamento.",
-                ),
-            }
-        )
-
+        vistos.add(normalizado)
+        tipo = _TIPOS_POR_TERMO.get(normalizado, "ingrediente relevante")
+        evidencias.append({
+            "termo": _rotulo_termo(normalizado),
+            "tipo": tipo,
+            "descricao": _DESCRICOES_POR_TIPO.get(
+                tipo, "Ingrediente considerado pelas regras de classificação NOVA."
+            ),
+        })
     return evidencias
 
 
@@ -117,54 +83,73 @@ def gerar_explicacao_amigavel(
     ingredientes_detectados: list[str] | None = None,
     score: int | None = None,
     status: str | None = None,
+    nova_grupo: int | None = None,
+    motivo_nao_classificacao: str | None = None,
+    evidencias: list[dict] | None = None,
 ) -> dict:
-    status_normalizado = _normalizar_status(status=status, classificacao=classificacao)
-    evidencias = gerar_evidencias(ingredientes_detectados)
-    ingredientes = [evidencia["termo"] for evidencia in evidencias]
+    if motivo_nao_classificacao:
+        return _gerar_nao_classificado(motivo_nao_classificacao, score)
 
-    if status_normalizado == "ALTO_INDICIO":
+    status_normalizado = _normalizar_status(status, classificacao)
+    grupo = nova_grupo if nova_grupo in {2, 3, 4} else _NOVA_POR_STATUS[status_normalizado]
+    evidencias_finais = evidencias if evidencias is not None else gerar_evidencias(ingredientes_detectados)
+    evidencias_finais = [
+        {**item, "termo": _rotulo_termo(item.get("termo", ""))}
+        for item in evidencias_finais
+    ]
+    ingredientes = list(dict.fromkeys(_rotulo_termo(item) for item in (ingredientes_detectados or [])))
+    termos = formatar_lista_termos(ingredientes)
+
+    if grupo == 4:
         titulo = "Fortes indícios de ultraprocessamento"
-        resumo = (
-            "Este produto possui ingredientes e aditivos comuns em alimentos "
-            "ultraprocessados."
+        resumo = "Este produto possui marcadores fortes comuns em formulações ultraprocessadas."
+        justificativa = (
+            f"Foram identificados {termos}. Esses marcadores indicam maior grau de formulação industrial."
+            if termos else "A composição apresenta marcadores fortes de formulação industrial."
         )
-        justificativa = _justificativa_alto(ingredientes)
-        orientacao = (
-            "Vale consumir com atenção e comparar com produtos que tenham uma lista "
-            "de ingredientes menor e com nomes mais familiares."
+        orientacao = "Compare com produtos que tenham uma lista de ingredientes menor e com nomes mais familiares."
+    elif grupo == 3:
+        titulo = "Alimento processado"
+        resumo = "A composição combina um alimento reconhecível com ingredientes culinários."
+        justificativa = (
+            f"Foram identificados {termos}, sem marcadores fortes de formulação ultraprocessada."
+            if termos else "A composição é compatível com um alimento processado simples."
         )
-    elif status_normalizado == "MEDIO_INDICIO":
-        titulo = "Alguns indícios de processamento"
-        resumo = (
-            "A lista de ingredientes apresenta sinais de industrialização, mas não "
-            "foram encontrados elementos suficientes para alto indício de ultraprocessamento."
-        )
-        justificativa = _justificativa_medio(ingredientes)
-        orientacao = (
-            "Observe a quantidade de ingredientes e compare com alternativas de "
-            "composição mais simples."
-        )
+        orientacao = "Observe a quantidade de sal ou açúcar e compare com alternativas de composição simples."
     else:
-        titulo = "Poucos indícios de ultraprocessamento"
-        resumo = (
-            "Foram encontrados poucos ou nenhum aditivo relevante associado a produtos "
-            "ultraprocessados."
+        titulo = "Ingrediente culinário processado"
+        resumo = "A composição é compatível com um ingrediente culinário processado do grupo 2 da NOVA."
+        justificativa = (
+            f"A lista contém {termos}, em uma composição simples e compatível com uso culinário."
+            if termos else "A composição identificada é simples e compatível com uso culinário."
         )
-        justificativa = _justificativa_baixo(ingredientes)
-        orientacao = (
-            "Use o resultado como apoio informativo e considere que a análise depende "
-            "da qualidade da imagem enviada."
-        )
+        orientacao = "Use com moderação como parte do preparo de alimentos e refeições."
 
     return {
-        "novaGrupo": _NOVA_POR_STATUS[status_normalizado],
-        "titulo": titulo,
-        "resumo": resumo,
-        "justificativa": justificativa,
-        "orientacao": orientacao,
-        "evidencias": evidencias,
-        "ingredientesDetectados": ingredientes,
-        "aviso": AVISO_INFORMATIVO,
+        "novaGrupo": grupo, "titulo": titulo, "resumo": resumo,
+        "justificativa": justificativa, "orientacao": orientacao,
+        "evidencias": evidencias_finais, "ingredientesDetectados": ingredientes,
+        "aviso": AVISO_INFORMATIVO, "score": score,
+    }
+
+
+def _gerar_nao_classificado(motivo: str, score: int | None) -> dict:
+    if motivo == "inconclusivo":
+        titulo = "Classificação inconclusiva"
+        resumo = "A lista de ingredientes foi identificada, mas não apresentou informações suficientes para determinar com segurança o grupo NOVA."
+        justificativa = "A composição não correspondeu de forma segura às regras controladas dos grupos 2, 3 ou 4."
+        orientacao = "Confira se toda a lista de ingredientes está visível e tente novamente com uma imagem mais nítida."
+        aviso = AVISO_INFORMATIVO
+    else:
+        titulo = "Não foi possível classificar o produto"
+        resumo = "A imagem não apresentou informações suficientes para identificar os ingredientes."
+        justificativa = "Não foi possível identificar uma lista de ingredientes legível na imagem enviada."
+        orientacao = "Envie uma nova foto enquadrando apenas a lista de ingredientes, com boa iluminação e nitidez."
+        aviso = "O resultado depende da qualidade e da legibilidade da imagem enviada."
+    return {
+        "novaGrupo": None, "titulo": titulo, "resumo": resumo,
+        "justificativa": justificativa, "orientacao": orientacao,
+        "evidencias": [], "ingredientesDetectados": [], "aviso": aviso,
         "score": score,
     }
 
@@ -172,55 +157,8 @@ def gerar_explicacao_amigavel(
 def _normalizar_status(status: str | None, classificacao: str | None) -> str:
     if status in _NOVA_POR_STATUS:
         return status
-
-    classificacao_normalizada = (classificacao or "").strip().lower()
-    return _STATUS_POR_CLASSIFICACAO.get(classificacao_normalizada, "BAIXO_INDICIO")
+    return _STATUS_POR_CLASSIFICACAO.get((classificacao or "").strip().lower(), "BAIXO_INDICIO")
 
 
 def _rotulo_termo(termo: str) -> str:
     return _ROTULOS_TERMOS.get(termo, termo)
-
-
-def _justificativa_alto(ingredientes: list[str]) -> str:
-    if not ingredientes:
-        return (
-            "Este produto apresenta fortes indícios de ultraprocessamento. A análise "
-            "considerou sinais presentes na lista de ingredientes identificada pelo OCR."
-        )
-
-    termos = formatar_lista_termos(ingredientes)
-    return (
-        f"Foram identificados {termos}. Esses ingredientes costumam ser usados para "
-        "modificar sabor, aparência, textura ou aumentar a durabilidade do alimento. "
-        "Esses sinais indicam maior grau de formulação industrial."
-    )
-
-
-def _justificativa_medio(ingredientes: list[str]) -> str:
-    if not ingredientes:
-        return (
-            "Este produto apresenta alguns sinais de processamento com base no padrão "
-            "da classificação, mas não houve ingredientes críticos suficientes para "
-            "alto indício."
-        )
-
-    termos = formatar_lista_termos(ingredientes)
-    return (
-        f"Foram identificados {termos}. Esses componentes podem estar relacionados "
-        "à conservação, sabor ou textura, mas não foram suficientes para indicar "
-        "alto grau de ultraprocessamento."
-    )
-
-
-def _justificativa_baixo(ingredientes: list[str]) -> str:
-    if not ingredientes:
-        return (
-            "A lista de ingredientes lida pelo OCR não trouxe sinais relevantes de "
-            "aditivos associados a produtos ultraprocessados."
-        )
-
-    termos = formatar_lista_termos(ingredientes)
-    return (
-        f"Foram identificados {termos}, mas em quantidade ou relevância insuficiente "
-        "para indicar alto grau de ultraprocessamento com base nas regras atuais."
-    )

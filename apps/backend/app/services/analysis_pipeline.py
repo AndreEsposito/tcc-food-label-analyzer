@@ -10,6 +10,7 @@ from app.models.schemas import (
     ClassificationStatus,
 )
 from app.services.ocr import OCRService
+from app.services.exceptions import OCRNoTextError
 from packages.classification_core.explanation_generator import gerar_explicacao_amigavel
 from packages.classification_core.pipeline import classificar
 
@@ -47,7 +48,12 @@ class AnalysisPipeline:
         logger.debug(f"Pipeline iniciado com imagem de {len(image_bytes)} bytes")
 
         logger.debug("Etapa 1: Extraindo texto com OCR...")
-        raw_text = self._ocr_service.extract_text(image_bytes)
+        try:
+            raw_text = self._ocr_service.extract_text(image_bytes)
+        except OCRNoTextError:
+            # Ausência de texto é um resultado analisável: a resposta conserva o
+            # contrato e orienta o usuário a fotografar a lista novamente.
+            raw_text = ""
         logger.debug(f"OCR concluido: {len(raw_text)} caracteres extraidos")
 
         logger.debug("Etapa 2: Classificando produto com classification_core...")
@@ -63,7 +69,9 @@ class AnalysisPipeline:
         logger.info(f"Analise {analysis_id} concluida com sucesso")
         return AnalysisResponse(
             analiseId=analysis_id,
-            status=AnalysisStatus.CLASSIFICADO,
+            status=AnalysisStatus(
+                core_result.get("status_analise", AnalysisStatus.CLASSIFICADO.value)
+            ),
             classificacao=classification,
         )
 
@@ -89,7 +97,7 @@ class AnalysisPipeline:
             categoria=self._classification_domain.categoria,
             status=status,
             justificativa=justificativa,
-            novaGrupo=explicacao_amigavel.get("novaGrupo", 1),
+            novaGrupo=explicacao_amigavel.get("novaGrupo"),
             titulo=explicacao_amigavel.get("titulo", ""),
             resumo=explicacao_amigavel.get("resumo", ""),
             orientacao=explicacao_amigavel.get("orientacao", ""),
@@ -119,12 +127,17 @@ class AnalysisPipeline:
             status=status.value,
             ingredientes_detectados=ingredientes_detectados,
             score=regras.get("score"),
+            nova_grupo=core_result.get("nova_grupo"),
+            motivo_nao_classificacao=regras.get("motivo"),
+            evidencias=regras.get("evidencias"),
         )
         explicacao_amigavel = core_result.get("explicacao_amigavel")
         if not isinstance(explicacao_amigavel, dict):
             return fallback
 
         return {
-            key: explicacao_amigavel.get(key) or fallback_value
+            key: explicacao_amigavel[key]
+            if key in explicacao_amigavel
+            else fallback_value
             for key, fallback_value in fallback.items()
         }

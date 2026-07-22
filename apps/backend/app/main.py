@@ -21,14 +21,11 @@ async def lifespan(app: FastAPI):
         carregar_modelo()
         logger.info("Modelo de ML carregado com sucesso: %s", MODEL_PATH)
     except Exception as exc:
-        logger.exception(
+        logger.warning(
             "Falha ao carregar modelo de ML no startup (%s): %s",
             MODEL_PATH,
             exc,
         )
-        raise RuntimeError(
-            f"Nao foi possivel carregar o modelo de ML em {MODEL_PATH}."
-        ) from exc
 
     yield
 

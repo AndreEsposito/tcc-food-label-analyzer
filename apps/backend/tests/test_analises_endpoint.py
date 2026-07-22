@@ -4,6 +4,8 @@ from app.api.v1.deps import get_analysis_pipeline
 from app.models.schemas import AnalysisResponse, AnalysisStatus, ClassificationResult, ClassificationStatus
 from app.services.exceptions import OCRNoTextError
 from app.main import app
+from pydantic import ValidationError
+import pytest
 
 
 class StubPipelineAltoIndicio:
@@ -51,6 +53,25 @@ class StubPipelineBaixoIndicio:
 class FailingPipeline:
     def run(self, image_bytes: bytes) -> AnalysisResponse:
         raise OCRNoTextError("sem texto")
+
+
+class StubPipelineNaoClassificado:
+    def run(self, image_bytes: bytes) -> AnalysisResponse:
+        return AnalysisResponse(
+            analiseId=UUID("44444444-4444-4444-4444-444444444444"),
+            status=AnalysisStatus.NAO_CLASSIFICADO,
+            classificacao=ClassificationResult(
+                categoria="ultraprocessado",
+                status=ClassificationStatus.BAIXO_INDICIO,
+                justificativa="Não foi possível identificar uma lista legível.",
+                novaGrupo=None,
+                titulo="Não foi possível classificar o produto",
+                resumo="Informações insuficientes.",
+                orientacao="Envie uma nova foto.",
+                evidencias=[],
+                ingredientesDetectados=[],
+            ),
+        )
 
 
 def test_post_analises_sucesso_alto_indicio(client):
@@ -123,3 +144,28 @@ def test_post_analises_quando_ocr_sem_texto(client):
 
     assert response.status_code == 422
     assert response.json()["detail"] == "Nao foi possivel extrair texto da imagem."
+
+
+def test_post_analises_preserva_json_quando_nao_classificado(client):
+    app.dependency_overrides[get_analysis_pipeline] = lambda: StubPipelineNaoClassificado()
+    response = client.post(
+        "/analises",
+        files={"imagem": ("rotulo.jpg", b"fake-image-bytes", "image/jpeg")},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "NAO_CLASSIFICADO"
+    assert body["classificacao"]["status"] == "BAIXO_INDICIO"
+    assert body["classificacao"]["novaGrupo"] is None
+    assert body["classificacao"]["evidencias"] == []
+    assert body["classificacao"]["ingredientesDetectados"] == []
+
+
+def test_schema_rejeita_nova_grupo_1():
+    with pytest.raises(ValidationError):
+        ClassificationResult(
+            categoria="ultraprocessado",
+            status=ClassificationStatus.BAIXO_INDICIO,
+            justificativa="Grupo legado inválido.",
+            novaGrupo=1,
+        )

@@ -26,6 +26,7 @@ API FastAPI responsável por receber imagens de rótulos alimentícios, extrair 
 - Campo de upload: `imagem`.
 - OCR integrado com Google Vision API.
 - Classificação rule-based ativa como decisão principal.
+- Classificação determinística dos grupos NOVA 2, 3 e 4 e retorno inconclusivo conservador.
 - Random Forest mantido como recurso experimental/acadêmico.
 - Sem persistência em banco.
 - Sem autenticação.
@@ -123,12 +124,23 @@ Campos principais consumidos pelo app:
 - `classificacao.ingredientesDetectados`;
 - `classificacao.aviso`.
 
+O campo externo `status` pode ser `CLASSIFICADO` ou `NAO_CLASSIFICADO`. No segundo caso, `classificacao.novaGrupo` é `null`, sem remoção ou renomeação dos demais campos.
+
+`classificacao.novaGrupo` aceita apenas os grupos 2, 3 e 4, ou `null`. O valor legado 1 é rejeitado pelo schema. Após alterações nesse contrato, o serviço no Render precisa ser redeployado; o OpenAPI publicado deve deixar de apresentar `default: 1`.
+
+As regras dos grupos 2 e 3 usam vocabulário fechado e padrões de composição. Foram validadas contra os produtos da aba `Dataset_Produtos`: açúcar/sacarose, sal e azeites são tratados como grupo 2; conservas, queijos simples, geleias e preparações baseadas em alimento com ingredientes culinários são tratadas como grupo 3. Leite fermentado simples permanece inconclusivo, e manteiga feita de creme de leite exige que o texto OCR também identifique explicitamente o produto como manteiga.
+
+Listas do grupo 3 continuam reconhecíveis quando o OCR perde vírgulas ou quebras de linha. Nesse caso, o backend recompõe os ingredientes apenas por frases do vocabulário controlado e rejeita a recuperação se houver palavras desconhecidas, sem alterar o contrato da API.
+
+Sem o cabeçalho `Ingredientes:`, um termo controlado isolado não sustenta classificação, pois pode ter sido extraído da frente da embalagem. Por exemplo, `açúcar refinado`, `sal` ou `aromatizante` sem estrutura de lista retornam `NAO_CLASSIFICADO` e `novaGrupo: null`; uma lista real de um ingrediente permanece válida quando o cabeçalho é capturado.
+
 ---
 
 ## Erros Esperados
 
+- `200` com `status = "NAO_CLASSIFICADO"`: OCR sem texto útil, lista insuficiente ou classificação inconclusiva.
 - `400`: arquivo inválido ou vazio.
-- `422`: OCR sem texto extraído.
+- `422`: reservado para uma falha de ausência de texto propagada por uma implementação alternativa do pipeline.
 - `502`: falha de autenticação/serviço OCR.
 - `504`: timeout no OCR.
 
@@ -150,6 +162,8 @@ Ele pode ser utilizado para:
 A classificação oficial retornada ao usuário é baseada no motor de regras heurísticas.
 
 Não transformar o Random Forest na fonte principal da decisão final sem decisão explícita do grupo.
+
+Uma falha no pickle ou na inferência experimental não bloqueia o startup nem a resposta heurística oficial.
 
 ---
 

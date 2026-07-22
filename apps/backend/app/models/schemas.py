@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 class AnalysisStatus(str, Enum):
     CLASSIFICADO = "CLASSIFICADO"
+    NAO_CLASSIFICADO = "NAO_CLASSIFICADO"
 
 
 class ClassificationStatus(str, Enum):
@@ -24,7 +25,7 @@ class ClassificationResult(BaseModel):
     categoria: str = Field(default="ultraprocessado")
     status: ClassificationStatus
     justificativa: str
-    novaGrupo: int = Field(default=1)
+    novaGrupo: int | None = Field(default=None, ge=2, le=4)
     titulo: str = Field(default="")
     resumo: str = Field(default="")
     orientacao: str = Field(default="")

@@ -25,7 +25,7 @@ def test_gera_explicacao_para_medio_indicio():
     )
 
     assert resultado["novaGrupo"] == 3
-    assert resultado["titulo"] == "Alguns indícios de processamento"
+    assert resultado["titulo"] == "Alimento processado"
     assert "emulsificante" in resultado["justificativa"]
     assert resultado["orientacao"]
 
@@ -36,10 +36,20 @@ def test_gera_explicacao_para_baixo_indicio():
         ingredientes_detectados=[],
     )
 
-    assert resultado["novaGrupo"] == 1
-    assert resultado["titulo"] == "Poucos indícios de ultraprocessamento"
-    assert "OCR" in resultado["justificativa"]
+    assert resultado["novaGrupo"] == 2
+    assert resultado["titulo"] == "Ingrediente culinário processado"
     assert resultado["orientacao"]
+
+
+def test_gera_explicacao_para_resultado_inconclusivo():
+    resultado = gerar_explicacao_amigavel(
+        status="BAIXO_INDICIO",
+        nova_grupo=None,
+        motivo_nao_classificacao="inconclusivo",
+    )
+    assert resultado["novaGrupo"] is None
+    assert resultado["titulo"] == "Classificação inconclusiva"
+    assert resultado["evidencias"] == []
 
 
 def test_gera_explicacao_com_lista_vazia_de_evidencias():

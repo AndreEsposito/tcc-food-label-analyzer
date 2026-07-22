@@ -210,12 +210,30 @@ class ResultScreen(BaseScreen):
             Clock.schedule_once(lambda dt: self._atualizar_visibilidade_estado(), 0.05)
             return
 
-        try:
-            grupo = int(resultado.get("nova_grupo", 4))
-        except (TypeError, ValueError):
-            grupo = 4
+        if resultado.get("nao_classificado"):
+            self.erro_titulo = resultado.get("titulo", "Classificação inconclusiva")
+            resumo = resultado.get("resumo", "")
+            orientacao = resultado.get("orientacao", "")
+            self.erro_detalhe = "\n\n".join(
+                texto for texto in (resumo, orientacao) if texto
+            )
+            self.state = "error"
+            Clock.schedule_once(lambda dt: self._atualizar_visibilidade_estado(), 0.05)
+            return
 
-        config = NOVA_CONFIG.get(grupo, NOVA_CONFIG[4])
+        try:
+            grupo = int(resultado.get("nova_grupo"))
+        except (TypeError, ValueError):
+            grupo = None
+
+        if grupo not in NOVA_CONFIG:
+            self.erro_titulo = "Classificação inconclusiva"
+            self.erro_detalhe = "Não foi possível determinar com segurança o grupo NOVA. Tente novamente com uma foto mais nítida."
+            self.state = "error"
+            Clock.schedule_once(lambda dt: self._atualizar_visibilidade_estado(), 0.05)
+            return
+
+        config = NOVA_CONFIG[grupo]
 
         self.nova_cor        = list(config["cor"])
         self.nova_progresso  = config["progresso"]

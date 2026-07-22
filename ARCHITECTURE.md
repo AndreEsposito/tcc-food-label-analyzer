@@ -244,6 +244,22 @@ Ela considera ingredientes e padrões associados ao ultraprocessamento, como:
 
 A saída da classificação por regras é utilizada como decisão oficial retornada ao usuário.
 
+A ordem determinística é:
+
+1. validar se há lista de ingredientes suficiente;
+2. identificar grupo 2 por famílias culinárias fechadas e auxiliares permitidos;
+3. identificar grupo 4 por marcadores fortes de formulação;
+4. identificar grupo 3 por alimento-base reconhecível combinado com ingredientes culinários;
+5. retornar resultado inconclusivo quando nenhuma regra for sustentada.
+
+Resultados inválidos ou inconclusivos preservam a resposta existente com `status = "NAO_CLASSIFICADO"`, `novaGrupo = null`, evidências vazias e orientação amigável. Os grupos 2, 3 e 4 mapeiam, respectivamente, para `BAIXO_INDICIO`, `MEDIO_INDICIO` e `ALTO_INDICIO`.
+
+Na ausência do cabeçalho de ingredientes, um único termo controlado não é considerado uma lista suficiente: ele pode ser apenas o nome ou um destaque da frente da embalagem. Assim, textos isolados como `açúcar refinado`, `sal` ou `aromatizante` permanecem inconclusivos; listas de um ingrediente continuam classificáveis quando o OCR captura o cabeçalho `Ingredientes:`.
+
+O vocabulário controlado dos grupos 2 e 3 cobre sinônimos e composições observados no dataset acadêmico, incluindo sacarose de cana, azeites refinado/virgem, queijos com quimosina, geleias com pectina e suco de limão, vegetais acidificados, pescados e leguminosas com temperos culinários. Contextos ambíguos permanecem inconclusivos: creme de leite só sustenta manteiga do grupo 2 quando o texto completo identifica explicitamente o produto, e leite fermentado simples não é suficiente para grupo 3.
+
+Quando o OCR remove pontuação e quebras de linha, o motor tenta recuperar os componentes do grupo 3 com uma segmentação gulosa pelo termo controlado mais longo. A recuperação não ignora conteúdo desconhecido: se restar qualquer palavra fora do vocabulário, a composição não é classificada por essa estratégia. Isso preserva o caráter conservador sem depender obrigatoriamente das vírgulas do rótulo.
+
 #### 3.5.2 Random Forest experimental
 
 O Random Forest é uma abordagem complementar e experimental.
@@ -257,6 +273,8 @@ Ele pode ser utilizado para:
 - apoio à validação do projeto.
 
 O Random Forest não deve ser tratado como fonte principal da decisão final sem decisão explícita do grupo.
+
+O vetor experimental legado é preservado para manter compatibilidade com o pickle atual. Falhas no carregamento ou na inferência são registradas como indisponibilidade experimental e não interrompem a classificação heurística.
 
 ---
 

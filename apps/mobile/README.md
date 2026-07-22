@@ -194,6 +194,10 @@ Campos relevantes para a tela:
 - `classificacao.ingredientesDetectados`;
 - `classificacao.aviso`.
 
+Quando `status` for `NAO_CLASSIFICADO` e `classificacao.novaGrupo` for `null`, o app apresenta o título, o resumo e a orientação recebidos em estado de nova tentativa. O valor nulo não é convertido para nenhum grupo NOVA.
+
+O valor do grupo precisa ser explicitamente 2, 3 ou 4. Contratos legados com `novaGrupo: 1` ou sem grupo não são inferidos a partir de `BAIXO_INDICIO`, `MEDIO_INDICIO` ou `ALTO_INDICIO`; o app os apresenta como inconclusivos.
+
 Mapeamento conceitual:
 
 | `classificacao.status` | Interpretação no app |

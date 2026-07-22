@@ -20,11 +20,16 @@ def carregar_modelo():
 
 
 def classificar_ml(features: dict) -> dict:
-    modelo = carregar_modelo()
-
-    entrada = [list(features.values())]
-    previsao = modelo.predict(entrada)[0]
-
-    return {
-        "classificacao": previsao
-    }
+    try:
+        modelo = carregar_modelo()
+        entrada = [list(features.values())]
+        previsao = modelo.predict(entrada)[0]
+        return {"classificacao": previsao, "disponivel": True}
+    except Exception as exc:
+        # O modelo é apenas comparativo; sua indisponibilidade não pode alterar
+        # nem impedir a decisão oficial produzida pelas regras heurísticas.
+        return {
+            "classificacao": None,
+            "disponivel": False,
+            "erro": str(exc),
+        }
