@@ -71,15 +71,18 @@ apps/
       buildozer.spec
 
   ml-lab/
-    data/
+    datasets/
+    models/random_forest.pkl
     train_model.py
+    compare_models.py
+    test_model.py
 
 packages/
   classification_core/
     pipeline.py
-    preprocessing.py
-    feature_extractor.py
-    rule_based.py
+    preprocess.py
+    features.py
+    rules.py
     ml.py
     explanation_generator.py
 ```
