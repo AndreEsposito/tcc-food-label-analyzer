@@ -4,6 +4,13 @@ from .preprocess import extrair_trecho_ingredientes, preprocessar, separar_compo
 
 
 MARCADORES_GRUPO_4: dict[str, tuple[str, str]] = {
+    "aroma natural": ("aromatizante", "Aroma adicionado para modificar o sabor, mesmo quando denominado natural."),
+    "emulsificante": ("emulsificante", "Aditivo cosmético usado para ajustar a textura de uma formulação."),
+    "lecitina": ("emulsificante", "Emulsificante adicionado para ajustar a textura."),
+    "dextrose": ("ingrediente industrial", "Fração de açúcar usada em formulações industriais."),
+    "soro de leite": ("ingrediente industrial", "Fração do leite adicionada à formulação."),
+    "goma guar": ("espessante", "Aditivo cosmético usado para ajustar a textura."),
+    "e150d": ("corante", "Código europeu do corante caramelo classe IV."),
     "aromatizante": ("aromatizante", "Substância usada para conferir ou intensificar aroma e sabor."),
     "aroma artificial": ("aromatizante", "Aroma formulado industrialmente para modificar o sabor."),
     "aroma identico ao natural": ("aromatizante", "Aroma formulado para reproduzir um aroma natural."),
@@ -51,6 +58,7 @@ FAMILIAS_GRUPO_2: dict[str, tuple[str, ...]] = {
     "azeite": (
         "azeite", "azeite de oliva", "azeite de oliva extravirgem",
         "azeite extravirgem", "azeite de oliva refinado", "azeite de oliva virgem",
+        "azeite virgem extra", "azeite de oliva virgem extra",
     ),
     "manteiga": ("manteiga",),
     "gordura": ("banha", "banha suina", "gordura suina", "gordura culinaria"),
@@ -69,16 +77,16 @@ ALIMENTOS_BASE_GRUPO_3 = (
 )
 INGREDIENTES_CULINARIOS = (
     "agua", "sal", "acucar", "oleo", "oleo vegetal", "azeite", "manteiga",
-    "vinagre",
+    "vinagre", "salmoura agua e sal",
 )
 COMPONENTES_SIMPLES_GRUPO_3 = ALIMENTOS_BASE_GRUPO_3 + INGREDIENTES_CULINARIOS + (
     "creme de leite", "fermento", "fermento biologico", "fermento lacteo",
     "coalho", "quimosina", "polpa de fruta", "suco de fruta", "suco de limao",
     "suco de tomate", "pectina", "cloreto de calcio", "culturas lacteas",
-    "conservante", "benzoato de sodio", "sorbato de potassio", "emulsificante",
-    "estabilizante", "espessante", "acidulante", "antioxidante", "acido citrico",
+    "conservante", "benzoato de sodio", "sorbato de potassio",
+    "acidulante", "antioxidante", "acido citrico",
     "conservador", "nisina", "regulador de acidez", "especiaria", "especiarias",
-    "tempero", "temperos", "pimenta", "alho", "louro", "aroma natural",
+    "tempero", "temperos", "pimenta", "alho", "louro",
 )
 
 VARIANTES_OCR_GRUPO_3 = (
@@ -86,7 +94,10 @@ VARIANTES_OCR_GRUPO_3 = (
     "leite em po desnatado", "creme de leite pasteurizado",
     "fermento lacteo", "fermentos lacteos", "feijao carioca", "feijao branco",
     "oleo de soja", "oleo de girassol", "oleo de milho", "oleo de canola",
-    "acidulante acido citrico", "conservador nisina", "aroma natural de endro",
+    "acidulante acido citrico", "conservador nisina", "milho verde",
+    "oleo comestivel", "salmoura agua e sal",
+    "sardinha sem pele e sem espinha dorsal",
+    "oleo de soja glycine max l merr",
 )
 
 TERMOS_RECUPERACAO_GRUPO_3 = tuple(
@@ -102,6 +113,85 @@ _TERMOS_NUTRICIONAIS = (
     "carboidratos", "proteinas", "gorduras totais", "fibra alimentar", "sodio",
 )
 
+# Receitas fechadas: a ausência de marcadores do grupo 4 não basta para NOVA 1.
+AVEIAS_GRUPO_1 = (
+    "aveia", "aveia em flocos", "aveia em flocos grossos", "aveia em flocos finos",
+    "aveia em flocos grossos organica", "aveia em flocos organica",
+    "aveia organica", "flocos de aveia",
+)
+LEITES_GRUPO_1 = (
+    "leite", "leite integral", "leite desnatado", "leite semidesnatado",
+    "leite pasteurizado", "leite pasteurizado desnatado",
+    "leite pasteurizado integral", "leite uht", "leite uht integral",
+    "leite uht semidesnatado", "leite uht desnatado", "leite em po desnatado",
+)
+FERMENTOS_GRUPO_1 = ("fermento lacteo", "culturas lacteas")
+CULTURAS_GRUPO_1 = (
+    "s thermophilus", "s termophilus", "streptococcus thermophilus",
+    "l bulgaricus", "l rhamnosus", "l acidophilus", "bifidus", "bifida",
+    "l casei", "lactobacillus bulgaricus", "lactobacillus acidophilus",
+)
+AUXILIARES_LEITE_GRUPO_1 = (
+    "enzima lactase", "lactase", "estabilizante", "estabilizantes",
+    "citrato de sodio", "trifosfato de sodio", "monofosfato de sodio",
+    "difosfato de sodio",
+)
+
+
+def _termos_ordenados(termos: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(sorted(set(termos), key=lambda item: (len(item.split()), len(item)), reverse=True))
+
+
+def identificar_grupo_1(texto_normalizado: str) -> dict | None:
+    aveias, residuais = _recuperar_componentes_controlados(
+        texto_normalizado, _termos_ordenados(AVEIAS_GRUPO_1),
+    )
+    if aveias and not residuais:
+        return _resultado_grupo(1, aveias, aveias)
+
+    termos = LEITES_GRUPO_1 + FERMENTOS_GRUPO_1 + CULTURAS_GRUPO_1 + AUXILIARES_LEITE_GRUPO_1 + (
+        "creme de leite", "creme de leite pasteurizado",
+    )
+    componentes, residuais = _recuperar_componentes_controlados(texto_normalizado, _termos_ordenados(termos))
+    if residuais or not any(item in LEITES_GRUPO_1 for item in componentes):
+        return None
+    fermentado = any(item in FERMENTOS_GRUPO_1 for item in componentes)
+    if any(item.startswith("creme de leite") or item in CULTURAS_GRUPO_1 for item in componentes) and not fermentado:
+        return None
+    # Culturas do iogurte e estabilizadores do leite UHT são exceções distintas.
+    if fermentado and any(item in AUXILIARES_LEITE_GRUPO_1 for item in componentes):
+        return None
+    if any(item in {"estabilizante", "estabilizantes"} for item in componentes) and not any(
+        item in AUXILIARES_LEITE_GRUPO_1[4:] for item in componentes
+    ):
+        return None
+    return _resultado_grupo(1, componentes, componentes)
+
+
+def identificar_acucar_por_denominacao(texto: str) -> dict | None:
+    """Exceção explícita para embalagem frontal, sem inferir ingredientes."""
+    _, cabecalho = extrair_trecho_ingredientes(texto)
+    normalizado = preprocessar(texto)
+    if cabecalho or any(termo in normalizado for termo in _TERMOS_NUTRICIONAIS) or _encontrar_marcadores(normalizado):
+        return None
+    if any(_termo_no_texto(termo, normalizado) for termo in (
+        "mistura", "biscoito", "receita", "bolo", "bebida", "cacau", "canela",
+    ) + ALIMENTOS_BASE_GRUPO_3 + AVEIAS_GRUPO_1):
+        return None
+    denominacao = any(
+        re.fullmatch(r"acucar refinado(?: especial)?", preprocessar(linha))
+        for linha in texto.splitlines()
+    )
+    peso = re.search(r"\bpeso\s+l[ií]q(?:uido)?\.?\s*\d+(?:[.,]\d+)?\s*(?:kg|g)\b", texto, re.I)
+    if not denominacao or not peso:
+        return None
+    resultado = _resultado_grupo(2, [], [])
+    resultado["evidencias"] = [{
+        "termo": "açúcar refinado", "tipo": "denominação do produto",
+        "descricao": "Produto identificado pela denominação e pelo peso na embalagem; composição não lida.",
+    }]
+    return resultado
+
 
 def validar_lista_ingredientes(texto: str) -> dict:
     trecho, tem_cabecalho = extrair_trecho_ingredientes(texto)
@@ -112,7 +202,7 @@ def validar_lista_ingredientes(texto: str) -> dict:
 
     texto_total = preprocessar(texto)
     apenas_nutricional = (
-        sum(termo in texto_total for termo in _TERMOS_NUTRICIONAIS) >= 2
+        sum(termo in (normalizado if tem_cabecalho else texto_total) for termo in _TERMOS_NUTRICIONAIS) >= 2
         and not _contem_termo_controlado(normalizado)
     )
     if apenas_nutricional:
@@ -137,22 +227,25 @@ def identificar_grupo_2(
     componentes: list[str],
     texto_completo_normalizado: str = "",
 ) -> dict | None:
-    componentes_manteiga = ("creme de leite", "sal")
+    texto_composicao = " ".join(componentes)
+    componentes_manteiga = ("creme de leite", "creme de leite pasteurizado", "sal", "cloreto de sodio")
+    manteiga, residuais = _recuperar_componentes_controlados(texto_composicao, _termos_ordenados(componentes_manteiga))
     if (
         _termo_no_texto("manteiga", texto_completo_normalizado)
         and not _termo_negado("manteiga", texto_completo_normalizado)
-        and any(_corresponde_inicio(item, ("creme de leite",)) for item in componentes)
-        and all(_corresponde_inicio(item, componentes_manteiga) for item in componentes)
+        and any(item.startswith("creme de leite") for item in manteiga)
+        and not residuais
     ):
-        return _resultado_grupo(2, componentes, componentes)
+        return _resultado_grupo(2, manteiga, manteiga)
 
     for familia, bases in FAMILIAS_GRUPO_2.items():
-        bases_presentes = [item for item in componentes if item in bases]
+        auxiliares = AUXILIARES_GRUPO_2.get(familia, ())
+        recuperados, residuais = _recuperar_componentes_controlados(texto_composicao, _termos_ordenados(bases + auxiliares))
+        bases_presentes = [item for item in recuperados if item in bases]
         if not bases_presentes:
             continue
-        auxiliares = AUXILIARES_GRUPO_2.get(familia, ())
-        if all(item in bases or _corresponde(item, auxiliares) for item in componentes):
-            return _resultado_grupo(2, componentes, bases_presentes)
+        if not residuais:
+            return _resultado_grupo(2, recuperados, bases_presentes)
     return None
 
 
@@ -205,6 +298,9 @@ def identificar_grupo_3(
 def classificar_regras(texto: str) -> dict:
     validacao = validar_lista_ingredientes(texto)
     if not validacao["valida"]:
+        produto = identificar_acucar_por_denominacao(texto)
+        if produto:
+            return produto
         return {
             "score": 0, "classificacao": "pouco processado", "nova_grupo": None,
             "status_analise": "NAO_CLASSIFICADO", "motivo": validacao["motivo"],
@@ -215,9 +311,11 @@ def classificar_regras(texto: str) -> dict:
     texto_normalizado = preprocessar(validacao["trecho"])
     texto_completo_normalizado = preprocessar(texto)
     resultado = (
-        identificar_grupo_2(componentes, texto_completo_normalizado)
-        or identificar_grupo_4(texto_normalizado)
+        identificar_grupo_4(texto_normalizado)
+        or identificar_grupo_2(componentes, texto_completo_normalizado)
+        or identificar_grupo_1(texto_normalizado)
         or identificar_grupo_3(componentes, texto_normalizado)
+        or identificar_acucar_por_denominacao(texto)
     )
     if resultado:
         return resultado
@@ -234,7 +332,7 @@ def _resultado_grupo(
     termos_evidencia: list[str],
     evidencias: list[dict] | None = None,
 ) -> dict:
-    classificacao = {2: "pouco processado", 3: "processado", 4: "ultraprocessado"}[grupo]
+    classificacao = {1: "pouco processado", 2: "pouco processado", 3: "processado", 4: "ultraprocessado"}[grupo]
     if evidencias is None:
         tipo = "ingrediente culinário" if grupo == 2 else "composição simples"
         descricao = (
@@ -242,8 +340,12 @@ def _resultado_grupo(
             if grupo == 2 else "Componente de uma composição baseada em alimento reconhecível e ingredientes culinários."
         )
         evidencias = [{"termo": termo, "tipo": tipo, "descricao": descricao} for termo in termos_evidencia]
+        if grupo == 1:
+            evidencias = [{"termo": termo, "tipo": "composição minimamente processada",
+                           "descricao": "Componente de uma receita fechada de aveia, leite ou iogurte natural."}
+                          for termo in termos_evidencia]
     return {
-        "score": {2: 0, 3: 1, 4: 3}[grupo], "classificacao": classificacao,
+        "score": {1: 0, 2: 0, 3: 1, 4: 3}[grupo], "classificacao": classificacao,
         "nova_grupo": grupo, "status_analise": "CLASSIFICADO", "motivo": None,
         "ingredientes_detectados": list(dict.fromkeys(ingredientes)), "evidencias": evidencias,
     }
@@ -256,14 +358,14 @@ def _validacao(valida: bool, trecho: str, componentes: list[str], motivo: str | 
 def _contem_termo_controlado(texto: str) -> bool:
     termos = tuple(MARCADORES_GRUPO_4) + tuple(
         termo for familia in FAMILIAS_GRUPO_2.values() for termo in familia
-    ) + ALIMENTOS_BASE_GRUPO_3
+    ) + ALIMENTOS_BASE_GRUPO_3 + AVEIAS_GRUPO_1 + LEITES_GRUPO_1
     return any(_termo_no_texto(termo, texto) for termo in termos)
 
 
 def _componentes_reconhecidos(componentes: list[str]) -> list[str]:
     termos = tuple(
         termo for familia in FAMILIAS_GRUPO_2.values() for termo in familia
-    ) + COMPONENTES_SIMPLES_GRUPO_3
+    ) + COMPONENTES_SIMPLES_GRUPO_3 + AVEIAS_GRUPO_1 + LEITES_GRUPO_1
     return [item for item in componentes if _corresponde(item, termos)]
 
 

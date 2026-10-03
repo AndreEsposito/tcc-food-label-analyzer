@@ -13,12 +13,20 @@ LOADING_TEXTS = [
 ]
 
 NOVA_CONFIG = {
+    1: {
+        "cor": (0.20, 0.65, 0.35, 1),
+        "progresso": 0.15,
+        "label": "In natura ou minimamente processado",
+        "descricao": "Alimentos com processamento mínimo, como aveia simples, leite e iogurte natural sem açúcar adicionado.",
+        "dica": "Confira a composição completa no rótulo.",
+        "dica_icone": "🟢",
+    },
     2: {
         "cor": (0.60, 0.80, 0.20, 1),
         "progresso": 0.38,
         "label": "Ingrediente culinário",
         "descricao": (
-            "Óleos, gorduras, sal, açúcar e farinhas extraídos de alimentos naturais. "
+            "Óleos, gorduras, sal e açúcar extraídos de alimentos naturais. "
             "Usados para temperar e cozinhar, mas não são consumidos sozinhos."
         ),
         "dica": "Use com moderação como parte do preparo de refeições.",
@@ -30,7 +38,7 @@ NOVA_CONFIG = {
         "label": "Alimento processado",
         "descricao": (
             "Produtos fabricados com adição de sal, açúcar ou outros ingredientes "
-            "como conservantes e emulsificantes. Exemplos: queijos, embutidos, "
+            "culinários. Exemplos: queijos simples, "
             "conservas e pães."
         ),
         "dica": "Consuma com moderação e prefira versões com menos aditivos.",
@@ -41,9 +49,9 @@ NOVA_CONFIG = {
         "progresso": 1.00,
         "label": "Ultraprocessado",
         "descricao": (
-            "Produtos industriais com muitos aditivos como corantes, aromatizantes, "
-            "edulcorantes e estabilizantes. São formulados para serem "
-            "hiper-palatáveis e têm pouco valor nutricional."
+            "Formulações industriais com marcadores como corantes, aromatizantes, "
+            "edulcorantes e emulsificantes adicionados para modificar sabor, "
+            "aparência ou textura."
         ),
         "dica": (
             "Evite ou consuma raramente. Estudos associam ao risco de "
@@ -313,4 +321,3 @@ class ResultScreen(BaseScreen):
                 return button.on_touch_up(touch)
 
         return super().on_touch_up(touch)
-

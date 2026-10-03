@@ -1,0 +1,146 @@
+{
+  "origem": "Transcrição manual dos trechos legíveis de 20 imagens para testes.pdf; não é saída do Google Vision nem medição de acurácia de imagens. Textos não alimentícios representados pelo conteúdo textual ou ausência de texto.",
+  "casos": [
+    {
+      "imagem": 1,
+      "produto": "rosto",
+      "texto": "",
+      "nova_grupo": null,
+      "status": "NAO_CLASSIFICADO"
+    },
+    {
+      "imagem": 2,
+      "produto": "tela do Google",
+      "texto": "Google\nGmail\nImagens\nPesquisa Google\nEstou com sorte",
+      "nova_grupo": null,
+      "status": "NAO_CLASSIFICADO"
+    },
+    {
+      "imagem": 3,
+      "produto": "açúcar refinado",
+      "texto": "Refinado\nAçúcar refinado especial\nPeso Líq. 1kg\nUnião\nRefinado",
+      "nova_grupo": 2,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 4,
+      "produto": "atum",
+      "texto": "INGREDIENTES: Atum, óleo\nde soja (Glycine max L.\nMerr.), água e sal.\nALÉRGICOS: CONTÉM PEIXE E DERIVADO DE SOJA.\nINFORMAÇÃO NUTRICIONAL Porção 120 g",
+      "nova_grupo": 3,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 5,
+      "produto": "aveia",
+      "texto": "INFORMAÇÃO NUTRICIONAL Porção 30 g Valor energético 370 kcal\nIngredientes: aveia em flocos grossos orgânica.\nAlérgicos: contém aveia. Pode conter cevada, centeio e trigo. Contém glúten.",
+      "nova_grupo": 1,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 6,
+      "produto": "azeite",
+      "texto": "Azeite Virgem Extra.\nIngredientes: 100% azeite virgem extra.\nConservar em local fresco e seco, ao abrigo da luz.\nValores nutricionais Energia 3374 kJ",
+      "nova_grupo": 2,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 7,
+      "produto": "biscoito Oreo",
+      "texto": "INGR.: FARINHA DE TRIGO ENRIQUECIDA COM FERRO E ÁCIDO FÓLICO, AÇÚCAR, GORDURA VEGETAL INTERESTERIFICADA, ÓLEO VEGETAL, CACAU EM PÓ, CARBONATO DE CÁLCIO, AÇÚCAR INVERTIDO, SAL, FERMENTOS QUÍMICOS: BICARBONATO DE AMÔNIO, BICARBONATO DE POTÁSSIO E BICARBONATO DE SÓDIO, EMULSIFICANTE LECITINA DE SOJA E AROMATIZANTES.\nALÉRGICOS: CONTÉM DERIVADOS DE TRIGO E SOJA.",
+      "nova_grupo": 4,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 8,
+      "produto": "cebola empanada",
+      "texto": "Ingredientes: cebola, farinha de trigo enriquecida com ferro e ácido fólico, óleo vegetal, amido de arroz, açúcar, amido modificado, glúten, dextrose, agente de firmeza cloreto de cálcio (INS 509), estabilizante alginato de sódio (INS 401), emulsificante mono e diglicerídeos de ácidos graxos (INS 471), aroma natural de cebola, corante urucum (INS 160b), fermentos químicos: difosfato de sódio (INS 450i) e bicarbonato de sódio (INS 500ii) e espessante goma guar (INS 412).\nALÉRGICOS: CONTÉM DERIVADOS DE TRIGO.",
+      "nova_grupo": 4,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 9,
+      "produto": "Coca-Cola Original",
+      "texto": "Ingredientes: Água, açúcar, dióxido de carbono, corante: caramelo E-150d, acidificante: ácido fosfórico e aromas naturais (incluindo cafeína).\nINFORMAÇÃO NUTRICIONAL",
+      "nova_grupo": 4,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 10,
+      "produto": "creatina pura",
+      "texto": "INFORMAÇÃO NUTRICIONAL Porção 3 g Valor energético\nINGREDIENTS: Creatine Monohydrate. GLUTEN FREE.\nALLERGEN WARNING: This product was made in a facility that also processes milk, egg, peanuts and soy.\nINGREDIENTES: Creatina Monohidratada. NÃO CONTÉM GLÚTEN. ALÉRGICOS: PODE CONTER AMENDOIM, LEITE, SOJA E OVO.",
+      "nova_grupo": null,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 11,
+      "produto": "extrato de tomate",
+      "texto": "Ingredientes:\ntomate, açúcar e sal.\nNÃO CONTÉM GLÚTEN.\nINFORMAÇÃO NUTRICIONAL",
+      "nova_grupo": 3,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 12,
+      "produto": "iogurte natural",
+      "texto": "INGREDIENTES: Leite pasteurizado desnatado,\ncreme de leite e fermentos lácteos (S. Termophilus,\nL. Bulgaricus, L. Rhamnosus, L. Acidophilus, bifidus,\nL. Casei).\nCONTÉM LACTOSE\nALÉRGICOS: CONTÉM LEITE\nNÃO CONTÉM GLÚTEN",
+      "nova_grupo": 1,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 13,
+      "produto": "bebida em cápsulas KitKat",
+      "texto": "INGREDIENTES: AÇÚCAR, LEITE EM PÓ INTEGRAL INSTANTÂNEO (LEITE EM PÓ INTEGRAL E EMULSIFICANTE LECITINA), CACAU EM PÓ, SORO DE LEITE E AROMATIZANTES.\nALÉRGICOS: CONTÉM DERIVADOS DE LEITE E SOJA.",
+      "nova_grupo": 4,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 14,
+      "produto": "biscoito maizena de chocolate",
+      "texto": "INGREDIENTES: farinha de trigo enriquecida com ferro e ácido fólico, açúcar, gordura vegetal, cacau em pó alcalino, amido de milho, soro de leite em pó, cacau em pó preto, sal refinado, corante: caramelo IV – processo sulfito-amônia, fermentos químicos: bicarbonato de sódio, bicarbonato de amônio e pirofosfato de sódio, emulsificante lecitina de soja, aromatizantes e melhoradores de farinha: protease e metabissulfito de sódio.\nCONTÉM GLÚTEN. ALÉRGICOS: CONTÉM DERIVADOS DE TRIGO, DE LEITE E DE SOJA.",
+      "nova_grupo": 4,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 15,
+      "produto": "manteiga com sal",
+      "texto": "15 – manteiga com sal\nINGREDIENTES: Creme de leite e cloreto de sódio (sal).\nALÉRGICOS: CONTÉM DERIVADOS DE LEITE. CONTÉM LACTOSE. NÃO CONTÉM GLÚTEN.",
+      "nova_grupo": 2,
+      "status": "CLASSIFICADO",
+      "contexto": "A identificação como manteiga vem do título da página do documento, não da lista na foto."
+    },
+    {
+      "imagem": 16,
+      "produto": "milho em conserva",
+      "texto": "Ingredientes: Milho verde e salmoura (água e sal).\nNÃO CONTÉM GLÚTEN. ALÉRGICOS: PODE CONTER SOJA.\nManter em local seco e fresco.",
+      "nova_grupo": 3,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 17,
+      "produto": "macarrão instantâneo com tempero",
+      "texto": "Ingredientes do macarrão: farinha de trigo enriquecida com ferro e ácido fólico, gordura vegetal, sal, reguladores de acidez carbonato de potássio e carbonato de sódio, estabilizante tripolifosfato de sódio, espessante goma guar e antioxidante tocoferol.\nIngredientes do tempero em pó: tempero sabor carne, carne bovina em pó, cacau em pó, alho em pó, antiumectante dióxido de silício, aromatizantes, realçadores de sabor glutamato monossódico, inosinato dissódico e guanilato dissódico e corante caramelo IV.\nALÉRGICOS: CONTÉM CEVADA, SOJA E DERIVADOS DE TRIGO.",
+      "nova_grupo": 4,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 18,
+      "produto": "achocolatado Nescau",
+      "texto": "INGREDIENTES: AÇÚCAR, CACAU, CARBONATO DE CÁLCIO (CÁLCIO), MALTODEXTRINA, EXTRATO DE MALTE DE CEVADA, SAL, VITAMINAS (MALTODEXTRINA, NITRATO DE TIAMINA (VITAMINA B1) E CLORIDRATO DE PIRIDOXINA (VITAMINA B6)), AROMATIZANTES E EMULSIFICANTE LECITINA.\nALÉRGICOS: CONTÉM DERIVADOS DE SOJA E DE CEVADA.",
+      "nova_grupo": 4,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 19,
+      "produto": "leite zero lactose",
+      "texto": "Ingredientes: leite semidesnatado, enzima lactase\ne estabilizantes citrato de sódio, trifosfato de sódio,\nmonofosfato de sódio e difosfato de sódio.\nALÉRGICOS: CONTÉM LEITE.\nNÃO CONTÉM GLÚTEN.\nDIABÉTICOS: CONTÉM GLICOSE.",
+      "nova_grupo": 1,
+      "status": "CLASSIFICADO"
+    },
+    {
+      "imagem": 20,
+      "produto": "sardinha",
+      "texto": "INGREDIENTES: sardinhas (sem pele e sem espinha dorsal), óleo comestível, pimenta, água e sal.\nNÃO CONTÉM GLÚTEN.\nALÉRGICOS: CONTÉM PEIXE E DERIVADOS DE SOJA.",
+      "nova_grupo": 3,
+      "status": "CLASSIFICADO"
+    }
+  ]
+}

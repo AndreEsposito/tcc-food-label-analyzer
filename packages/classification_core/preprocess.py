@@ -3,12 +3,15 @@ import unicodedata
 
 
 _CABECALHO_INGREDIENTES = re.compile(
-    r"\b(?:lista\s+de\s+)?ingredientes?\s*[:\-]?",
+    r"\b(?:lista\s+de\s+)?(?:ingredientes?|ingredients|ingr\.)(?:\s+(?:do|de)\s+(?:macarr[ãa]o|tempero\s+em\s+p[óo]))?\s*[:\-]?",
     re.IGNORECASE,
 )
 _FIM_LISTA = re.compile(
-    r"\b(?:alergicos?|alergênicos?|cont[eé]m\s+gl[uú]ten|não\s+cont[eé]m\s+gl[uú]ten|"
-    r"informa(?:ção|cao)\s+nutricional|porção|porcao|validade|fabricado\s+por)\b",
+    r"\b(?:al[eé]rgicos?|alerg[eê]nicos?|cont[eé]m\s+gl[uú]ten|n[ãa]o\s+cont[eé]m\s+gl[uú]ten|"
+    r"(?:n[ãa]o\s+)?cont[eé]m\s+lactose|gluten\s+free|allergen\s+warning|"
+    r"informa(?:ção|cao)\s+nutricional|valores\s+nutricionais|porção|porcao|"
+    r"validade|fabricado\s+por|conservar\s+em|mantenha\s+em|"
+    r"modo\s+de\s+preparo|sugest[ãa]o\s+de\s+preparo)\b",
     re.IGNORECASE,
 )
 _SINONIMOS_NORMALIZADOS = {
@@ -22,6 +25,12 @@ _SINONIMOS_NORMALIZADOS = {
     r"\bgordura vegetal interesterificada\b": "gordura interesterificada",
     r"\brealcadores de sabor\b": "realcador de sabor",
     r"\b(?:acessulfame|acesulfame) k\b": "acesulfame de potassio",
+    r"\bextra virgem\b": "extravirgem",
+    r"\bsardinhas\b": "sardinha",
+    r"\bfermentos lacteos\b": "fermento lacteo",
+    r"\baromas naturais\b": "aroma natural",
+    r"\bcreatine monohydrate\b": "creatina monohidratada",
+    r"\be 150\s*d\b": "e150d",
 }
 
 
@@ -57,6 +66,8 @@ def extrair_trecho_ingredientes(texto: str) -> tuple[str, bool]:
     fim = _FIM_LISTA.search(trecho)
     if fim:
         trecho = trecho[: fim.start()]
+    # Inclui sublistas do mesmo produto, como massa e tempero do macarrão.
+    trecho = _CABECALHO_INGREDIENTES.sub(" ", trecho)
     return trecho.strip(" \t\r\n:;-"), cabecalho is not None
 
 
@@ -65,10 +76,11 @@ def separar_componentes(trecho: str) -> list[str]:
     if not trecho:
         return []
 
-    partes = re.split(r"[,;\n\r]+|\s+e\s+", trecho, flags=re.IGNORECASE)
+    partes = re.split(r"[,;\n\r]+|(?<!mono)\s+e\s+", trecho, flags=re.IGNORECASE)
     componentes: list[str] = []
     vistos: set[str] = set()
     for parte in partes:
+        parte = re.sub(r"^\s*100\s*%\s*(?=azeite\b)", "", parte, flags=re.IGNORECASE)
         normalizada = preprocessar(parte)
         normalizada = re.sub(
             r"^(?:ingredientes?|composicao|produto)\s+", "", normalizada

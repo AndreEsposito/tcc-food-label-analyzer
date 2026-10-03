@@ -198,7 +198,9 @@ Quando `status` for `NAO_CLASSIFICADO` e `classificacao.novaGrupo` for `null`, o
 
 Durante a transição de versões, o normalizador também reconhece respostas antigas que usam `NAO_CLASSIFICADO`, mas afirmam no título ou resumo que a lista de ingredientes foi identificada. Esses retornos são exibidos como `NOVA ?` em vez de erro; a publicação do backend atualizado continua necessária para que a API devolva a lista completa em `ingredientesDetectados`.
 
-O valor numérico do grupo precisa ser explicitamente 2, 3 ou 4. Contratos legados com `novaGrupo: 1` ou sem grupo não são inferidos a partir de `BAIXO_INDICIO`, `MEDIO_INDICIO` ou `ALTO_INDICIO`; havendo ingredientes, o app usa `NOVA ?`, e sem ingredientes mantém o fluxo de nova tentativa.
+O grupo precisa ser um inteiro explícito 1, 2, 3 ou 4 em uma análise `CLASSIFICADO` com status interno válido. A tela possui configuração própria para NOVA 1; `BAIXO_INDICIO` sozinho não distingue grupos 1 e 2. Sem grupo explícito, havendo ingredientes, o app usa `NOVA ?`, e sem ingredientes mantém o fluxo de nova tentativa. Açúcar refinado reconhecido por denominação e peso líquido pode apresentar NOVA 2 sem ingredientes lidos, com evidência e aviso enviados pelo backend.
+
+A [regressão de 20 rótulos](../../docs/validacao_nova_20_rotulos.md) testa a normalização da resposta junto à API. O build APK e a execução da interface em dispositivo Android precisam de validação separada.
 
 Mapeamento conceitual:
 

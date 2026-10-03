@@ -85,7 +85,7 @@ def test_identifica_grupo_3_com_alimento_base_e_ingredientes_culinarios(texto):
     "Morango, açúcar, pectina e suco de limão.",
     "Goiaba, açúcar, suco de limão e pectina.",
     "Tomate, suco de tomate e acidulante ácido cítrico.",
-    "Pepino, vinagre, água, açúcar, sal, especiarias e aroma natural de endro.",
+    "Pepino, vinagre, água, açúcar, sal e especiarias.",
     "Sardinha, óleo, pimenta, água e sal.",
     "Água, feijão carioca, óleo de girassol, sal, alho e louro.",
 ])
@@ -103,7 +103,7 @@ def test_identifica_composicoes_de_grupo_3_presentes_no_dataset(texto):
     "pessego agua e acucar",
     "tomate suco de tomate e acidulante acido citrico",
     "tomate acucar e sal",
-    "pepino vinagre agua acucar sal especiarias e aroma natural de endro",
+    "pepino vinagre agua acucar sal e especiarias",
     "sardinha oleo pimenta agua e sal",
     "agua feijao carioca oleo de girassol sal alho e louro",
     "feijao branco agua e sal",
@@ -129,7 +129,7 @@ def test_recuperacao_sem_pontuacao_rejeita_palavra_nao_controlada():
 def test_iogurte_natural_simples_nao_e_promovido_ao_grupo_3(texto):
     resultado = classificar(texto)
     assert resultado["status_analise"] == "CLASSIFICADO"
-    assert resultado["nova_grupo"] is None
+    assert resultado["nova_grupo"] == 1
     assert resultado["ingredientes_detectados"]
 
 
@@ -145,6 +145,8 @@ def test_iogurte_natural_simples_nao_e_promovido_ao_grupo_3(texto):
     ("leite integral, leite em pó desnatado, proteínas lácteas e fermento lácteo", "proteina lactea"),
     ("água, açúcar e aroma artificial", "aroma artificial"),
     ("água, açúcar e aromas artificiais", "aroma artificial"),
+    ("pepino, vinagre, água, açúcar, sal, especiarias e aroma natural de endro", "aroma natural"),
+    ("pepino vinagre agua acucar sal especiarias e aroma natural de endro", "aroma natural"),
     ("água, acessulfame-K", "acesulfame de potassio"),
     ("mono e diglicerídeos de ácidos graxos, farinha e água", "mono e diglicerideos de acidos graxos"),
     ("farinha, gordura vegetal interesterificada e aromatizante", "gordura interesterificada"),

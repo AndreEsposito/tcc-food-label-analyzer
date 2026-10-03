@@ -94,7 +94,7 @@ def gerar_explicacao_amigavel(
         return _gerar_nao_classificado(motivo_nao_classificacao, score)
 
     status_normalizado = _normalizar_status(status, classificacao)
-    grupo = nova_grupo if nova_grupo in {2, 3, 4} else _NOVA_POR_STATUS[status_normalizado]
+    grupo = nova_grupo if nova_grupo in {1, 2, 3, 4} else _NOVA_POR_STATUS[status_normalizado]
     evidencias_finais = evidencias if evidencias is not None else gerar_evidencias(ingredientes_detectados)
     evidencias_finais = [
         {**item, "termo": _rotulo_termo(item.get("termo", ""))}
@@ -103,7 +103,13 @@ def gerar_explicacao_amigavel(
     ingredientes = list(dict.fromkeys(_rotulo_termo(item) for item in (ingredientes_detectados or [])))
     termos = formatar_lista_termos(ingredientes)
 
-    if grupo == 4:
+    por_denominacao = any(item.get("tipo") == "denominação do produto" for item in evidencias_finais)
+    if grupo == 1:
+        titulo = "Alimento in natura ou minimamente processado"
+        resumo = "A composição corresponde a uma receita controlada do grupo 1 da NOVA."
+        justificativa = f"Foram identificados {termos}, em uma composição simples de aveia, leite ou iogurte natural."
+        orientacao = "Confira se a lista foi lida por completo e compare com outros produtos de composição simples."
+    elif grupo == 4:
         titulo = "Fortes indícios de ultraprocessamento"
         resumo = "Este produto possui marcadores fortes comuns em formulações ultraprocessadas."
         justificativa = (
@@ -127,12 +133,18 @@ def gerar_explicacao_amigavel(
             if termos else "A composição identificada é simples e compatível com uso culinário."
         )
         orientacao = "Use com moderação como parte do preparo de alimentos e refeições."
+        if por_denominacao:
+            resumo = "O produto foi identificado como açúcar refinado pela denominação na embalagem."
+            justificativa = "A denominação açúcar refinado e o peso líquido sustentam NOVA 2; a lista de ingredientes não foi lida."
 
     return {
         "novaGrupo": grupo, "titulo": titulo, "resumo": resumo,
         "justificativa": justificativa, "orientacao": orientacao,
         "evidencias": evidencias_finais, "ingredientesDetectados": ingredientes,
-        "aviso": AVISO_INFORMATIVO, "score": score,
+        "aviso": (
+            "Resultado informativo baseado na denominação do produto. Confirme a composição no rótulo."
+            if por_denominacao else AVISO_INFORMATIVO
+        ), "score": score,
     }
 
 
@@ -140,7 +152,7 @@ def _gerar_nao_classificado(motivo: str, score: int | None) -> dict:
     if motivo == "inconclusivo":
         titulo = "Classificação inconclusiva"
         resumo = "A lista de ingredientes foi identificada, mas não apresentou informações suficientes para determinar com segurança o grupo NOVA."
-        justificativa = "A composição não correspondeu de forma segura às regras controladas dos grupos 2, 3 ou 4."
+        justificativa = "A composição não correspondeu de forma segura às regras controladas dos grupos 1, 2, 3 ou 4."
         orientacao = "Confira se toda a lista de ingredientes está visível e tente novamente com uma imagem mais nítida."
         aviso = AVISO_INFORMATIVO
     else:
@@ -185,7 +197,7 @@ def _gerar_grupo_indeterminado(
         ),
         "justificativa": (
             f"Foram identificados {termos}, porém não há evidência suficiente "
-            "para atribuir os grupos NOVA 2, 3 ou 4."
+            "para atribuir os grupos NOVA 1, 2, 3 ou 4."
         ),
         "orientacao": (
             "Considere a lista apresentada como apoio informativo e compare o "

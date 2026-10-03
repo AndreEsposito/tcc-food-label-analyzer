@@ -18,7 +18,7 @@ def enviar_imagem(caminho_imagem: str) -> dict:
 
     Retorno em caso de sucesso:
     {
-        "nova_grupo": int (2–4) ou None quando a análise for inconclusiva,
+        "nova_grupo": int (1–4) ou None quando a análise for inconclusiva,
         "classificacao": str,
         "justificativa": str,
         "ingredientes_detectados": [str, ...]
@@ -147,7 +147,7 @@ def _normalizar_resposta(dados: dict) -> dict:
       classificacao.justificativa -> texto descritivo
 
     App consome:
-      nova_grupo    -> int 2–4 (escala NOVA) ou None
+      nova_grupo    -> int 1–4 (escala NOVA) ou None
       classificacao -> label legível
       justificativa -> texto descritivo
     """
@@ -167,11 +167,19 @@ def _normalizar_resposta(dados: dict) -> dict:
             resumo,
         )
         nova_grupo_backend = classificacao.get("novaGrupo")
-        if nova_grupo_backend in {2, 3, 4}:
+        grupo_valido = (
+            type(nova_grupo_backend) is int
+            and nova_grupo_backend in {1, 2, 3, 4}
+            and status in _MAPA_NOVA
+            and status_analise == "CLASSIFICADO"
+        )
+        if grupo_valido:
             nova_grupo_resposta = nova_grupo_backend
+            if nova_grupo_backend == 1 and not classificacao.get("titulo"):
+                titulo = "Alimento in natura ou minimamente processado"
         else:
             # O status BAIXO/MEDIO/ALTO não comprova sozinho um grupo NOVA.
-            # Respostas legadas com grupo 1 ou sem novaGrupo são inconclusivas,
+            # Respostas sem grupo explícito ou com status inválido são inconclusivas,
             # evitando transformar uma análise antiga genérica em NOVA 2.
             nova_grupo_resposta = None
             if lista_identificada:
@@ -265,4 +273,3 @@ def _mock_resposta() -> dict:
             "corante, aromatizante, glutamato monossódico, maltodextrina."
         ),
     }
-

@@ -127,6 +127,7 @@ def test_analysis_pipeline_does_not_classify_front_label_as_ingredient_list(text
 @pytest.mark.parametrize(
     "texto, grupo, status",
     [
+        ("Ingredientes: aveia em flocos.", 1, "BAIXO_INDICIO"),
         ("Ingredientes: açúcar refinado.", 2, "BAIXO_INDICIO"),
         ("Ingredientes: atum, água e sal.", 3, "MEDIO_INDICIO"),
         ("Ingredientes: água, açúcar, corante e aromatizante.", 4, "ALTO_INDICIO"),
@@ -149,7 +150,7 @@ def test_analysis_pipeline_maps_nova_groups_without_changing_contract(texto, gru
 @pytest.mark.parametrize("texto", [
     "leite pasteurizado sal e quimosina",
     "morango acucar pectina e suco de limao",
-    "pepino vinagre agua acucar sal especiarias e aroma natural de endro",
+    "pepino vinagre agua acucar sal e especiarias",
     "agua feijao carioca oleo de girassol sal alho e louro",
 ])
 def test_analysis_pipeline_classifies_group_3_without_ocr_punctuation(texto):

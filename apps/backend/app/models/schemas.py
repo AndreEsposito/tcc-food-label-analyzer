@@ -25,7 +25,7 @@ class ClassificationResult(BaseModel):
     categoria: str = Field(default="ultraprocessado")
     status: ClassificationStatus
     justificativa: str
-    novaGrupo: int | None = Field(default=None, ge=2, le=4)
+    novaGrupo: int | None = Field(default=None, ge=1, le=4)
     titulo: str = Field(default="")
     resumo: str = Field(default="")
     orientacao: str = Field(default="")
