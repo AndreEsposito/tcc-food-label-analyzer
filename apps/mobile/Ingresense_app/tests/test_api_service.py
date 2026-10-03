@@ -72,7 +72,7 @@ def test_contrato_antigo_sem_grupo_explicito_fica_inconclusivo():
     assert resultado["aviso"] == ""
 
 
-def test_contrato_antigo_com_nova_1_fica_inconclusivo():
+def test_contrato_com_nova_1_explicito_e_aceito():
     resultado = _normalizar_resposta(
         {
             "status": "CLASSIFICADO",
@@ -80,12 +80,13 @@ def test_contrato_antigo_com_nova_1_fica_inconclusivo():
                 "categoria": "ultraprocessado",
                 "status": "BAIXO_INDICIO",
                 "novaGrupo": 1,
-                "justificativa": "Resposta produzida pelo backend antigo.",
+                "titulo": "Alimento in natura ou minimamente processado",
+                "justificativa": "Ingredientes compatíveis com NOVA 1.",
             },
         }
     )
-    assert resultado["nova_grupo"] is None
-    assert resultado["nao_classificado"] is True
+    assert resultado["nova_grupo"] == 1
+    assert "nao_classificado" not in resultado
 
 
 def test_contrato_antigo_sem_nova_grupo_fica_inconclusivo():

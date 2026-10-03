@@ -26,7 +26,7 @@ API FastAPI responsável por receber imagens de rótulos alimentícios, extrair 
 - Campo de upload: `imagem`.
 - OCR integrado com Google Vision API.
 - Classificação rule-based ativa como decisão principal.
-- Classificação determinística dos grupos NOVA 2, 3 e 4 e retorno com grupo indeterminado quando os ingredientes não sustentam uma decisão segura.
+- Classificação determinística dos grupos NOVA 1, 2, 3 e 4 e retorno com grupo indeterminado quando os ingredientes não sustentam uma decisão segura.
 - Random Forest mantido como recurso experimental/acadêmico.
 - Sem persistência em banco.
 - Sem autenticação.
@@ -126,19 +126,22 @@ Campos principais consumidos pelo app:
 
 O campo externo `status` pode ser `CLASSIFICADO` ou `NAO_CLASSIFICADO`. `NAO_CLASSIFICADO` é reservado à ausência de ingredientes utilizáveis. Quando ingredientes são identificados sem grupo seguro, o status é `CLASSIFICADO` e `classificacao.novaGrupo` permanece `null`, sem remoção ou renomeação dos demais campos.
 
-`classificacao.novaGrupo` aceita apenas os grupos 2, 3 e 4, ou `null`. O valor legado 1 é rejeitado pelo schema. Após alterações nesse contrato, o serviço no Render precisa ser redeployado; o OpenAPI publicado deve deixar de apresentar `default: 1`.
+`classificacao.novaGrupo` aceita os grupos 1, 2, 3 e 4, ou `null`, sem grupo padrão. NOVA 1 e 2 preservam `BAIXO_INDICIO`; a distinção depende do grupo numérico explícito. A publicação do backend e da versão mobile atualizados é necessária para disponibilizar o comportamento ao usuário.
 
-As regras dos grupos 2 e 3 usam vocabulário fechado e padrões de composição. Foram validadas contra os produtos da aba `Dataset_Produtos`: açúcar/sacarose, sal e azeites são tratados como grupo 2; conservas, queijos simples, geleias e preparações baseadas em alimento com ingredientes culinários são tratadas como grupo 3. `Proteínas lácteas` é normalizado como marcador forte do grupo 4. Leite fermentado simples retorna grupo indeterminado, e manteiga feita de creme de leite exige que o texto OCR também identifique explicitamente o produto como manteiga.
+As regras dos grupos 2 e 3 usam vocabulário fechado e padrões de composição. Foram validadas contra os produtos da aba `Dataset_Produtos`: açúcar/sacarose, sal e azeites são tratados como grupo 2; conservas, queijos simples, geleias e preparações baseadas em alimento com ingredientes culinários são tratadas como grupo 3. `Proteínas lácteas` é normalizado como marcador forte do grupo 4. Aveia simples, leite e iogurte natural de composição fechada podem retornar NOVA 1; lactase e estabilizadores reconhecidos do leite têm tratamento contextual, sem liberar aditivos desconhecidos. Aromas naturais adicionados, emulsificantes, lecitina, soro de leite, dextrose e goma guar entram como marcadores fortes do grupo 4. Creatina monohidratada pura preserva ingredientes e grupo indeterminado, e manteiga feita de creme de leite exige que o texto OCR também identifique explicitamente o produto como manteiga.
 
-Listas do grupo 3 continuam reconhecíveis quando o OCR perde vírgulas ou quebras de linha. Nesse caso, o backend recompõe os ingredientes apenas por frases do vocabulário controlado e rejeita a recuperação se houver palavras desconhecidas, sem alterar o contrato da API.
+Listas dos grupos 1, 2 e 3 continuam reconhecíveis quando o OCR perde vírgulas ou quebras de linha. Nesse caso, o backend recompõe os ingredientes apenas por frases do vocabulário controlado e rejeita a recuperação se houver palavras desconhecidas, sem alterar o contrato da API.
 
-Sem o cabeçalho `Ingredientes:`, um termo controlado isolado não sustenta classificação, pois pode ter sido extraído da frente da embalagem. Por exemplo, `açúcar refinado`, `sal` ou `aromatizante` sem estrutura de lista retornam `NAO_CLASSIFICADO` e `novaGrupo: null`; uma lista real de um ingrediente permanece válida quando o cabeçalho é capturado.
+Sem o cabeçalho `Ingredientes:`, um termo controlado isolado não sustenta classificação, pois pode ter sido extraído da frente da embalagem. Por exemplo, `açúcar refinado`, `sal` ou `aromatizante` sem estrutura de lista retornam `NAO_CLASSIFICADO` e `novaGrupo: null`; uma lista real de um ingrediente permanece válida quando o cabeçalho é capturado. A exceção frontal para açúcar refinado exige denominação em linha própria e peso líquido explícito; não se aplica quando uma lista de ingredientes está presente.
+
+A regressão dos [20 rótulos](../../docs/validacao_nova_20_rotulos.md) percorre regras, endpoint e normalização mobile com OCR simulado; não mede acurácia do Google Vision sobre as imagens.
 
 ---
 
 ## Erros Esperados
 
-- `200` com `status = "NAO_CLASSIFICADO"`: OCR sem ingredientes utilizáveis.
+- `200` com `status = "NAO_CLASSIFICADO"`: OCR sem ingredientes utilizáveis e sem denominação frontal suportada.
+- `200` com `status = "CLASSIFICADO"` e NOVA 2, sem ingredientes lidos: açúcar refinado reconhecido por denominação e peso líquido, com evidência e aviso explícitos.
 - `200` com `status = "CLASSIFICADO"` e `novaGrupo = null`: ingredientes identificados, mas sem grupo NOVA seguro.
 - `400`: arquivo inválido ou vazio.
 - `422`: reservado para uma falha de ausência de texto propagada por uma implementação alternativa do pipeline.

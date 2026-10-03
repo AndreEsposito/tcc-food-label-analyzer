@@ -32,7 +32,7 @@ Fluxo principal:
 - Campo de upload: `imagem`.
 - OCR integrado com Google Vision API.
 - Classificação rule-based ativa como decisão principal.
-- Regras determinísticas para grupos NOVA 2, 3 e 4, com `NOVA ?` quando os ingredientes são identificados sem evidência suficiente para definir o grupo.
+- Regras determinísticas para grupos NOVA 1, 2, 3 e 4, com `NOVA ?` quando os ingredientes são identificados sem evidência suficiente para definir o grupo.
 - Random Forest mantido como abordagem experimental.
 - Resposta amigável expandida para o app mobile.
 - App mobile desenvolvido com Python + Kivy.
@@ -165,7 +165,9 @@ Para setup completo, credenciais, variáveis de ambiente, execução local e dep
 
 Quando o OCR não identifica ingredientes, a API mantém o mesmo JSON, retorna `status: "NAO_CLASSIFICADO"` e `classificacao.novaGrupo: null`; o aplicativo orienta uma nova captura. Quando há ingredientes identificados, mas nenhuma regra permite definir o grupo com segurança, a API retorna `status: "CLASSIFICADO"`, preserva `classificacao.novaGrupo: null` e o aplicativo apresenta o resultado como `NOVA ?`, junto dos itens encontrados.
 
-O aplicativo só exibe um grupo numérico quando o backend envia explicitamente `novaGrupo` como 2, 3 ou 4. Respostas sem grupo que contenham ingredientes identificados são exibidas como `NOVA ?`; respostas sem grupo e sem ingredientes permanecem no fluxo de nova tentativa.
+O aplicativo só exibe um grupo numérico quando o backend envia explicitamente `novaGrupo` como 1, 2, 3 ou 4 em uma resposta classificada com status interno válido. O status BAIXO/MÉDIO/ALTO sozinho não define NOVA. Respostas sem grupo que contenham ingredientes identificados são exibidas como `NOVA ?`; respostas sem grupo e sem ingredientes permanecem no fluxo de nova tentativa.
+
+O grupo 1 usa receitas fechadas de aveia, leite e iogurte natural; lactase e estabilizadores explicitamente reconhecidos do leite não são, isoladamente, marcadores de ultraprocessamento. A exceção frontal de açúcar refinado exige denominação em uma linha e peso líquido explícito, retorna evidência de identificação do produto e não inventa ingredientes. Listas completas têm prioridade. Consulte [a validação dos 20 rótulos](docs/validacao_nova_20_rotulos.md) para os casos de referência, limites e comandos de teste.
 
 ---
 

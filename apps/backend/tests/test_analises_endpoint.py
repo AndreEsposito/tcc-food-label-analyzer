@@ -161,11 +161,12 @@ def test_post_analises_preserva_json_quando_nao_classificado(client):
     assert body["classificacao"]["ingredientesDetectados"] == []
 
 
-def test_schema_rejeita_nova_grupo_1():
+@pytest.mark.parametrize("grupo", [0, 5, -1])
+def test_schema_rejeita_nova_grupo_fora_da_escala(grupo):
     with pytest.raises(ValidationError):
         ClassificationResult(
             categoria="ultraprocessado",
             status=ClassificationStatus.BAIXO_INDICIO,
-            justificativa="Grupo legado inválido.",
-            novaGrupo=1,
+            justificativa="Grupo inválido.",
+            novaGrupo=grupo,
         )

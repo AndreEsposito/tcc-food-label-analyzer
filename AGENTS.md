@@ -275,19 +275,22 @@ Formato geral da resposta:
 
 O contrato pode evoluir, mas qualquer mudança deve preservar compatibilidade com o aplicativo mobile ou atualizar explicitamente o app junto com o backend.
 
-O campo externo `status` admite `CLASSIFICADO` e `NAO_CLASSIFICADO`. `NAO_CLASSIFICADO` é reservado aos casos em que nenhum ingrediente utilizável foi identificado. Quando há ingredientes, mas nenhuma regra define o grupo com segurança, o resultado permanece `CLASSIFICADO`, `novaGrupo` é `null` e o mobile apresenta `NOVA ?`; os demais campos da estrutura permanecem presentes. Para resultados com grupo definido, a precedência oficial é: grupo 2 (família culinária fechada e auxiliares permitidos), grupo 4 (marcadores fortes) e grupo 3 (alimento-base com ingredientes culinários). O campo interno `classificacao.status` preserva `BAIXO_INDICIO`, `MEDIO_INDICIO` e `ALTO_INDICIO`.
+O campo externo `status` admite `CLASSIFICADO` e `NAO_CLASSIFICADO`. `NAO_CLASSIFICADO` é reservado aos casos em que nenhum ingrediente utilizável nem denominação frontal suportada foi identificado. Quando há ingredientes, mas nenhuma regra define o grupo com segurança, o resultado permanece `CLASSIFICADO`, `novaGrupo` é `null` e o mobile apresenta `NOVA ?`; os demais campos da estrutura permanecem presentes. Para resultados com grupo definido, a precedência é: grupo 4 (marcadores fortes), grupo 2 (família culinária fechada e auxiliares permitidos), grupo 1 (receitas minimamente processadas fechadas) e grupo 3 (alimento-base com ingredientes culinários). A exceção de denominação frontal de açúcar refinado exige linha própria e peso líquido, não substitui uma lista presente e retorna evidência e aviso de identificação do produto, sem inventar ingredientes. O campo interno `classificacao.status` preserva `BAIXO_INDICIO`, `MEDIO_INDICIO` e `ALTO_INDICIO`.
 
-O valor `novaGrupo = 1` pertence ao contrato legado e não é válido no escopo atual. O schema aceita somente 2, 3, 4 ou `null`; o mobile converte respostas legadas pelo status interno e nunca deve exibir grupo 1.
+O schema aceita `novaGrupo` 1, 2, 3, 4 ou `null`. O mobile aceita somente um inteiro explícito em uma análise classificada com status interno válido; não deduz o grupo pelo status. NOVA 1 e 2 compartilham `BAIXO_INDICIO`, com títulos e configurações de apresentação distintos.
 
 As regras controladas devem preservar as seguintes distinções validadas pelo dataset acadêmico:
 
 - grupo 2 reconhece sinônimos explícitos de açúcar/sacarose, sal, óleos, azeites e manteiga;
 - manteiga baseada em creme de leite exige contexto textual explícito de que o produto é manteiga;
 - grupo 3 aceita combinações controladas de conservas, queijos simples, geleias, frutas em calda e preparações com temperos culinários;
-- leite com fermento lácteo, sem outro critério de processamento do grupo 3, não deve ser promovido automaticamente;
+- aveia simples, leite e iogurte natural podem sustentar grupo 1 apenas por receitas fechadas; lactase, estabilizadores reconhecidos do leite e culturas do iogurte exigem contexto, sem ignorar palavras residuais;
+- leite com fermento lácteo sem açúcar não é promovido automaticamente ao grupo 3;
+- aromas naturais adicionados e emulsificantes são marcadores fortes; não permitir `aroma natural de endro` na lista simples do grupo 3;
+- creatina pura com lista identificada permanece `CLASSIFICADO`, com NOVA `null` e ingredientes preservados;
 - vocabulário adicional nunca pode prevalecer sobre marcadores fortes do grupo 4.
 
-Como o OCR pode remover vírgulas e quebras de linha, o grupo 3 possui uma recuperação determinística por termos controlados. Ela segmenta o texto normalizado pelo termo mais longo e só é aceita quando todas as palavras pertencem ao vocabulário conhecido; qualquer palavra residual impede a atribuição do grupo 3, mas os ingredientes detectados continuam sendo retornados com `novaGrupo = null`.
+Como o OCR pode remover vírgulas e quebras de linha, os grupos 1, 2 e 3 possuem recuperação determinística por termos controlados. Ela segmenta o texto normalizado pelo termo mais longo e só é aceita quando todas as palavras pertencem ao vocabulário conhecido; qualquer palavra residual impede a atribuição desses grupos, mas os ingredientes detectados continuam sendo retornados com `novaGrupo = null`.
 
 ---
 
