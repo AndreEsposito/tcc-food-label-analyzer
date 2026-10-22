@@ -30,7 +30,7 @@ API FastAPI responsável por receber imagens de rótulos alimentícios, extrair 
 - Random Forest mantido como recurso experimental/acadêmico.
 - Sem persistência em banco.
 - Sem autenticação.
-- Health check HTTP público em `GET /health`.
+- Health check HTTP público em `GET e HEAD /health`.
 
 ---
 
@@ -55,7 +55,7 @@ Principais arquivos:
 
 - `app/main.py`: inicialização da API e middlewares.
 - `app/api/v1/analises.py`: endpoint `POST /analises`.
-- `app/api/v1/health.py`: endpoint leve `GET /health`.
+- `app/api/v1/health.py`: endpoint leve `GET e HEAD /health`.
 - `app/services/analysis_pipeline.py`: orquestração do fluxo OCR → classificação → resposta.
 - `app/services/ocr.py`: integração com Google Vision API.
 - `app/models/schemas.py`: contratos de entrada/saída.
@@ -65,7 +65,7 @@ Principais arquivos:
 
 ## Endpoint Principal
 
-O endpoint `GET /health` retorna HTTP 200 com `{"status": "ok"}`. Ele verifica apenas a disponibilidade HTTP da API; não consulta OCR, classificação ou serviços externos.
+O endpoint `GET e HEAD /health` retorna HTTP 200 com `{"status": "ok"}`; `HEAD` retorna HTTP 200 sem corpo. O endpoint verifica apenas a disponibilidade HTTP da API; não consulta OCR, classificação ou serviços externos.
 
 ```http
 POST /analises
