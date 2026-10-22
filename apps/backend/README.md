@@ -139,6 +139,8 @@ Sem o cabeçalho `Ingredientes:`, um termo controlado isolado não sustenta clas
 
 A regressão dos [20 rótulos](../../docs/validacao_nova_20_rotulos.md) percorre regras, endpoint e normalização mobile com OCR simulado; não mede acurácia do Google Vision sobre as imagens.
 
+As justificativas exibidas na tela de resultado são geradas em `packages/classification_core/explanation_generator.py`, conforme o grupo NOVA e a composição identificada. NOVA 1 diferencia aveia, leite e fermentação do iogurte, com explicações contextuais para lactase e estabilizantes reconhecidos do leite. NOVA 2 explica o uso culinário; NOVA 3 relaciona o alimento-base aos ingredientes de preparo ou conservação; NOVA 4 explica a função dos marcadores encontrados, como aromatizantes, corantes e emulsificantes. O texto cita até quatro ingredientes como exemplos, preservando as listas completas em `ingredientesDetectados` e `evidencias`. A identificação frontal de açúcar continua explicitando que a lista não foi lida. As regras de classificação e o contrato JSON permanecem os mesmos; basta atualizar o backend para que o mobile atual receba os novos textos.
+
 ---
 
 ## Erros Esperados

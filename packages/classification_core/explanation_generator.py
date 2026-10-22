@@ -1,3 +1,7 @@
+from .preprocess import preprocessar
+from .rules import MARCADORES_GRUPO_4
+
+
 AVISO_INFORMATIVO = (
     "Resultado informativo baseado na lista de ingredientes identificada pelo OCR. "
     "Esta análise não substitui a avaliação de um profissional de nutrição."
@@ -68,11 +72,12 @@ def gerar_evidencias(ingredientes_detectados: list[str] | None) -> list[dict]:
         if not normalizado or normalizado in vistos:
             continue
         vistos.add(normalizado)
-        tipo = _TIPOS_POR_TERMO.get(normalizado, "ingrediente relevante")
+        marcador = MARCADORES_GRUPO_4.get(preprocessar(normalizado))
+        tipo = marcador[0] if marcador else _TIPOS_POR_TERMO.get(normalizado, "ingrediente relevante")
         evidencias.append({
             "termo": _rotulo_termo(normalizado),
             "tipo": tipo,
-            "descricao": _DESCRICOES_POR_TIPO.get(
+            "descricao": marcador[1] if marcador else _DESCRICOES_POR_TIPO.get(
                 tipo, "Ingrediente considerado pelas regras de classificação NOVA."
             ),
         })
@@ -101,41 +106,28 @@ def gerar_explicacao_amigavel(
         for item in evidencias_finais
     ]
     ingredientes = list(dict.fromkeys(_rotulo_termo(item) for item in (ingredientes_detectados or [])))
-    termos = formatar_lista_termos(ingredientes)
 
     por_denominacao = any(item.get("tipo") == "denominação do produto" for item in evidencias_finais)
     if grupo == 1:
         titulo = "Alimento in natura ou minimamente processado"
-        resumo = "A composição corresponde a uma receita controlada do grupo 1 da NOVA."
-        justificativa = f"Foram identificados {termos}, em uma composição simples de aveia, leite ou iogurte natural."
+        resumo = "A composição identificada é compatível com um alimento in natura ou minimamente processado."
         orientacao = "Confira se a lista foi lida por completo e compare com outros produtos de composição simples."
     elif grupo == 4:
         titulo = "Fortes indícios de ultraprocessamento"
         resumo = "Este produto possui marcadores fortes comuns em formulações ultraprocessadas."
-        justificativa = (
-            f"Foram identificados {termos}. Esses marcadores indicam maior grau de formulação industrial."
-            if termos else "A composição apresenta marcadores fortes de formulação industrial."
-        )
-        orientacao = "Compare com produtos que tenham uma lista de ingredientes menor e com nomes mais familiares."
+        orientacao = "Compare a composição com a de produtos semelhantes e prefira opções à base de alimentos e ingredientes culinários."
     elif grupo == 3:
         titulo = "Alimento processado"
         resumo = "A composição combina um alimento reconhecível com ingredientes culinários."
-        justificativa = (
-            f"Foram identificados {termos}, sem marcadores fortes de formulação ultraprocessada."
-            if termos else "A composição é compatível com um alimento processado simples."
-        )
         orientacao = "Observe a quantidade de sal ou açúcar e compare com alternativas de composição simples."
     else:
         titulo = "Ingrediente culinário processado"
         resumo = "A composição é compatível com um ingrediente culinário processado do grupo 2 da NOVA."
-        justificativa = (
-            f"A lista contém {termos}, em uma composição simples e compatível com uso culinário."
-            if termos else "A composição identificada é simples e compatível com uso culinário."
-        )
         orientacao = "Use com moderação como parte do preparo de alimentos e refeições."
         if por_denominacao:
             resumo = "O produto foi identificado como açúcar refinado pela denominação na embalagem."
-            justificativa = "A denominação açúcar refinado e o peso líquido sustentam NOVA 2; a lista de ingredientes não foi lida."
+
+    justificativa = _justificar_grupo(grupo, ingredientes, evidencias_finais)
 
     return {
         "novaGrupo": grupo, "titulo": titulo, "resumo": resumo,
@@ -146,6 +138,79 @@ def gerar_explicacao_amigavel(
             if por_denominacao else AVISO_INFORMATIVO
         ), "score": score,
     }
+
+
+def _justificar_grupo(grupo: int, ingredientes: list[str], evidencias: list[dict]) -> str:
+    # A justificativa cita exemplos; as listas completas continuam nos campos próprios.
+    termos = formatar_lista_termos(ingredientes[:4])
+    leitura = f"Na lista lida, foram identificados {termos}. " if termos else ""
+    normalizados = [preprocessar(item) for item in ingredientes]
+
+    if grupo == 1:
+        if any(item.startswith(("aveia", "flocos de aveia")) for item in normalizados):
+            motivo = "A composição preserva a aveia como alimento-base, sem adição identificada de sal, açúcar ou marcadores de ultraprocessamento."
+        elif any(item in {"fermento lacteo", "culturas lacteas"} for item in normalizados):
+            motivo = "O leite e as culturas de fermentação formam uma composição compatível com iogurte natural sem açúcar adicionado. A fermentação, por si só, não caracteriza ultraprocessamento."
+        elif any(item.startswith("leite") for item in normalizados):
+            motivo = "A composição mantém o leite como alimento-base."
+            if any("lactase" in item for item in normalizados):
+                motivo += " A lactase é uma enzima usada para quebrar a lactose e, neste contexto, não define ultraprocessamento."
+            if any("estabilizant" in item or "fosfato" in item or item == "citrato de sodio" for item in normalizados):
+                motivo += " Os estabilizantes reconhecidos nesta composição do leite não bastam para enquadrá-lo como ultraprocessado."
+        else:
+            motivo = "A composição identificada é compatível com um alimento que preserva suas características básicas, sem ingredientes que sustentem um grupo de maior processamento."
+        return leitura + motivo + " Por isso, o resultado é compatível com NOVA 1."
+
+    if grupo == 2:
+        if any(item.get("tipo") == "denominação do produto" for item in evidencias):
+            return (
+                "A embalagem foi reconhecida pela denominação açúcar refinado e pelo peso líquido; a lista de ingredientes não foi lida. "
+                "O açúcar é um ingrediente culinário obtido de alimentos e usado para adoçar preparações, o que sustenta NOVA 2. "
+                "Confirme a composição no rótulo."
+            )
+        if any(item.startswith("acucar") for item in normalizados):
+            uso = "adoçar preparações"
+        elif any(item.startswith(("sal", "cloreto de sodio")) for item in normalizados) and not any(
+            item.startswith(("creme de leite", "manteiga")) for item in normalizados
+        ):
+            uso = "temperar e conservar alimentos"
+        else:
+            uso = "cozinhar, temperar ou compor preparações"
+        return (
+            leitura + f"A composição é compatível com um ingrediente culinário usado para {uso}. "
+            "Esse tipo de produto é obtido por extração ou transformação de alimentos ou de fontes naturais e pertence ao NOVA 2. "
+            "Seu uso culinário o diferencia de um alimento pronto para consumo."
+        )
+
+    if grupo == 3:
+        return (
+            leitura + "A composição combina um alimento-base com sal, açúcar ou outros ingredientes culinários, "
+            "usados no preparo ou na conservação, mantendo o alimento reconhecível. "
+            "Essa combinação sustenta NOVA 3; na lista analisada, não foram identificados marcadores fortes de ultraprocessamento."
+        )
+
+    funcoes = {
+        "aromatizante": "modificar aroma e sabor",
+        "corante": "alterar ou reforçar a cor",
+        "edulcorante": "adoçar com edulcorantes",
+        "realçador de sabor": "intensificar o sabor",
+        "emulsificante": "ajustar a textura e estabilizar misturas",
+        "espessante": "modificar a textura e a consistência",
+        "gordura modificada": "incorporar gorduras modificadas industrialmente",
+        "ingrediente industrial": "incorporar frações ou substâncias de uso industrial",
+        "açúcar industrial": "incorporar açúcares transformados para uso industrial",
+    }
+    usos = list(dict.fromkeys(
+        funcoes[item["tipo"]] for item in evidencias if item.get("tipo") in funcoes
+    ))
+    papel = (
+        f"Esses marcadores são usados para {formatar_lista_termos(usos[:3])}. "
+        if usos else "Esses ingredientes são marcadores de formulação industrial reconhecidos pelas regras. "
+    )
+    return (
+        leitura + papel + "Sua presença sustenta NOVA 4, por indicar uma formulação que vai além "
+        "da combinação de alimentos com ingredientes culinários. A classificação considera o tipo dos ingredientes, não apenas a quantidade de itens na lista."
+    )
 
 
 def _gerar_nao_classificado(motivo: str, score: int | None) -> dict:

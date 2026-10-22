@@ -46,6 +46,7 @@ def test_reference_labels_through_rules_api_and_mobile(client, monkeypatch, caso
     spec.loader.exec_module(service)
     normalized = service._normalizar_resposta(payload)
     assert normalized["nova_grupo"] == caso["nova_grupo"]
+    assert normalized["justificativa"] == payload["classificacao"]["justificativa"]
     if caso["imagem"] == 10:
         assert normalized["grupo_indeterminado"] is True
         assert normalized["ingredientes_detectados"] == ["creatina monohidratada"]
